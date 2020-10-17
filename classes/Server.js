@@ -66,10 +66,10 @@ class Server {
                 }
                 else {
                     if (this.allowSessions) {
-                        this.sessionsManager.store(req, res, filename, callback);
+                        this.sessionsManager.store(request, response, filename, callback);
                     }
                     else {
-                        callback({ request: req, response: res, filename: filename, sessionId: undefined });
+                        callback({ request, response, filename, sessionId: undefined });
                     }
                 }
             }
