@@ -1,0 +1,1 @@
+const { Base } = require('./index');
