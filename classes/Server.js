@@ -40,7 +40,7 @@ class Server {
             delete: () => {
 
             },
-            get: (request, response, filename) => {
+            get: (request, response, filename, callback) => {
                 if (this.static == true) {
                     if (this.allowSessions) {
                         this.sessionsManager.store(request, response);
@@ -69,7 +69,7 @@ class Server {
                         this.sessionsManager.store(request, response, filename, callback);
                     }
                     else {
-                        callback({ request, response, filename, sessionId: undefined });
+                        callback({ request, response, filename});
                     }
                 }
             }
@@ -120,7 +120,7 @@ class Server {
         if (req.method.toLowerCase() == 'get') {
             req.sessionId = this.sessionsManager.createNODESSID(res, true);
             req.fileType = contentType;
-            this.methods.get(req, res, filename);
+            this.methods.get(req, res, filename, callback);
         }
         else if (req.method.toLowerCase() != 'options') {
             this.resolveMethod(req, res, req.method.toLowerCase());
