@@ -157,12 +157,12 @@ class Server {
         server.on('error', err => {
             console.log(`Port ${params.port} is in use`)
         }).listen(params.port, '0.0.0.0', () => {
+            this.url = `${params.protocol}://localhost:${params.port}`;
             console.log(`${params.protocol} Server Running on Port : ${params.port}`);
-            console.log('Url: ', `${params.protocol}://localhost:${params.port}`)
+            console.log('Url: ', this.url);
         });
 
         if(typeof callback === 'function'){
-            server.url = `${params.protocol}://localhost:${params.port}`;
             callback(server);
         }
     }
