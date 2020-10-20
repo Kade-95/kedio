@@ -19,8 +19,8 @@
     "minor": "npm version minor",
     "major": "npm version major",
     "build": "browserify ./app/src/main.js -p esmify > ./app/public/bundle.js -d",
-    "browserify": "browserify ./browser.js -p esmify > ./bundle.js -d",
-    "deploy": "gh-pages -d ./"
+    "browserify": "browserify ./browser.js -p esmify > ./build/bundle.js -d",
+    "deploy": "gh-pages -d build"
   },
   "repository": {
     "type": "git",
