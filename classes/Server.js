@@ -161,7 +161,10 @@ class Server {
             console.log('Url: ', `${params.protocol}://localhost:${params.port}`)
         });
 
-        callback(server);
+        if(typeof callback === 'function'){
+            server.url = `${params.protocol}://localhost:${params.port}`;
+            callback(server);
+        }
     }
 
     onPosting(data) {

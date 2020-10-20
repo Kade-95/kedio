@@ -9,7 +9,8 @@
   },
   "devDependencies": {
     "browser-resolve": "^2.0.0",
-    "esmify": "^2.1.1"
+    "esmify": "^2.1.1",
+    "gh-pages": "^3.1.0"
   },
   "scripts": {
     "test": "nodemon test.js",
@@ -17,7 +18,9 @@
     "patch": "npm version patch",
     "minor": "npm version minor",
     "major": "npm version major",
-    "build": "browserify ./app/src/main.js -p esmify > ./app/public/bundle.js -d"
+    "build": "browserify ./app/src/main.js -p esmify > ./app/public/bundle.js -d",
+    "browserify": "browserify ./browser.js -p esmify > ./bundle.js -d",
+    "deploy": "gh-pages -d kedio"
   },
   "repository": {
     "type": "git",

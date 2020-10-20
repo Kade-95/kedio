@@ -1,22 +1,11 @@
+const TreeEvent = require('./TreeEvent');
+
 class Tree {
     #children = [];
     #parent = null;
     #root = null;
     #attributes = {};
-
-    constructor(items, parent, root) {
-        if (Array.isArray(items)) {
-            this.push(...items);
-        }
-
-        if (parent != undefined && parent.constructor == Tree) {
-            this.#parent = parent;
-        }
-
-        if (root != undefined && root.constructor == Tree) {
-            this.#root = root;
-        }
-    }
+    #eventsList = [];
 
     get height() {
         let height = 1, branchHeights = [];
@@ -35,14 +24,6 @@ class Tree {
         return this.#children.length;
     }
 
-    set length(size) {
-        let newChildren = [];
-        for (let i = 0; i < size; i++) {
-            newChildren.push(this.#children[i]);
-        }
-        this.#children = newChildren;
-    }
-
     get parentTree() {
         return this.#parent;
     }
@@ -53,6 +34,28 @@ class Tree {
 
     get values() {
         return Array.from(this.#children);
+    }
+
+    set length(size) {
+        let newChildren = [];
+        for (let i = 0; i < size; i++) {
+            newChildren.push(this.#children[i]);
+        }
+        this.#children = newChildren;
+    }
+
+    constructor(items, parent, root) {
+        if (Array.isArray(items)) {
+            this.push(...items);
+        }
+
+        if (parent != undefined && parent.constructor == Tree) {
+            this.#parent = parent;
+        }
+
+        if (root != undefined && root.constructor == Tree) {
+            this.#root = root;
+        }
     }
 
     createItems(items) {
@@ -346,6 +349,25 @@ class Tree {
     pop() {
         return this.#children.pop();
     }
+    
+    remove(){
+        this.dispatchEvent('remove');
+        if(this.isBranch()){
+            this.#parent.removeChild(this);
+            this.dispatchEvent('removed');
+        }
+    }
+
+    removeChild(child){
+        let index = this.indexOf(child);
+        let newChildren = [];
+        for(let i in this.#children){
+            if(i != index){
+                newChildren.push(this.#children[i]);
+            }
+        }
+        this.#children = newChildren;
+    }
 
     reverse() {
         this.#children.reverse();
@@ -517,6 +539,41 @@ class Tree {
 
     unshift(...items) {
         this.#children.unshift(...this.createItems(items));
+    }
+
+    dispatchEvent(name, attributes, bubble) {
+        let treeEvent = new TreeEvent(name, attributes, bubble);
+        if (treeEvent.bubble == true && this.isBranch()) {
+            this.#parent.dispatchEvent(name, attributes, bubble);
+        }
+
+        for (let event of this.#eventsList) {
+            if (event.name == name) {
+                if (typeof event.callback === 'function') {
+                    event.callback(treeEvent.attributes);
+                }
+            }
+        }
+    }
+
+    addEventListener(name, callback, id) {
+        this.#eventsList.push({ name, callback, id });
+    }
+
+    removeEventListener(name, callback, id) {
+        let newList = [];
+        for (let event of this.#eventsList) {
+            if (event.name == name && event.id == id) {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }
+            else {
+                newList.push(event);
+            }
+        }
+
+        this.#eventsList = newList;
     }
 
     static isTree(tree) {

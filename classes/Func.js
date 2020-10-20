@@ -584,20 +584,21 @@ class Func {
     urlSplitter(location = '') {
         if (this.isset(location)) {
             location = location.toString();
-            var httpType = (location.indexOf('://') === -1) ? null : location.split('://')[0];
-            var fullPath = location.split('://').pop(0);
-            var host = fullPath.split('/')[0];
-            var hostName = host.split(':')[0];
-            var port = host.split(':').pop(0);
-            var path = '/' + fullPath.split('/').pop(0);
-            var pathName = path.split('?')[0];
-            var queries = (path.indexOf('?') === -1) ? null : path.split('?').pop(0);
-
-            var vars = {};
-            if (queries != null) {
-                var query = queries.split('&');
-                for (var x in query) {
-                    var parts = query[x].split('=');
+            let protocol = (location.indexOf('://') === -1) ? undefined : location.split('://')[0];
+            let fullPath = location.split('://')[1];
+            let host = fullPath.split('/')[0];
+            let hostName = host.split(':')[0];
+            let port = host.split(':')[1];
+            let path = fullPath.slice(fullPath.indexOf('/'));
+            let pathName = path.split('?')[0].split('#')[0];
+            let hash = path.slice(path.indexOf('#'));
+            let queries = (path.indexOf('#') > path.indexOf('?')) ? path.slice(path.indexOf('?')) : null;
+            let vars = {};
+            if (!this.isnull(queries)) {
+                queries = queries.slice(0, queries.indexOf('#'));
+                let query = queries.slice(queries.indexOf('?') + 1).split('&');
+                for (let x in query) {
+                    let parts = query[x].split('=');
                     if (parts[1]) {
                         vars[this.stringReplace(parts[0], '-', ' ')] = this.stringReplace(parts[1], '-', ' ');
                     } else {
@@ -605,8 +606,11 @@ class Func {
                     }
                 }
             }
-            var httphost = httpType + '://' + host;
-            return { location: location, httpType: httpType, fullPath: fullPath, host: host, httphost: httphost, hostName: hostName, port: port, path: path, pathName: pathName, queries: queries, vars: vars };
+            let httphost = protocol + '://' + host;
+            let splitHost = host.split('.').reverse();
+            let domain = `${splitHost[1]}.${splitHost[0]}`;
+
+            return { location, protocol, fullPath, host, httphost, hostName, port, path, pathName, queries, vars, hash, domain };
         }
     }
 
@@ -627,6 +631,35 @@ class Func {
             }
         }
         return vars;
+    }
+
+    varSize(value) {
+        let objectList = [];
+
+        let recurse = (object) => {
+            let bytes = 0;
+            if (typeof object == 'string') {
+                bytes += object.length * 2;
+            }
+            else if (typeof object == 'number') {
+                bytes += 8;
+            }
+            else if (typeof object == 'boolean') {
+                bytes += 4;
+            }
+            else if (typeof object == 'object' && objectList.indexOf(object) == -1) {
+                objectList.push(object);
+
+                for (let i in object) {
+                    bytes += recurse(i);
+                    bytes += recurse(object[i]);
+                }
+            }
+
+            return bytes;
+        }
+
+        return recurse(value);
     }
 }
 
