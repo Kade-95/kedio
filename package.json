@@ -13,7 +13,7 @@
     "gh-pages": "^3.1.0"
   },
   "scripts": {
-    "test": "nodemon test.js",
+    "test": "nodemon ignore/test.js",
     "start": "npm run build && nodemon app/index.js",
     "patch": "npm version patch",
     "minor": "npm version minor",
