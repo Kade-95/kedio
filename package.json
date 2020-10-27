@@ -19,6 +19,7 @@
     "minor": "npm version minor",
     "major": "npm version major",
     "build": "browserify ./app/src/main.js -p esmify > ./app/public/bundle.js -d",
+    "watch": "watchify ./app/src/main.js -p esmify -o ./app/public/bundle.js -v -d",
     "browserify": "browserify ./browser.js -p esmify > ./build/bundle.js -d",
     "deploy": "gh-pages -d build"
   },

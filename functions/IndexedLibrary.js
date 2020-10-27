@@ -190,20 +190,22 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.generateId = function (request) {
+    self.generateId = function () {
         let id = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);//generate the id using time
         return id;
     }
 
-    self.checkId = function (request, query, callback) {
-        let id = query._id || self.generateId();//get new _id if not set
-        let get = request.get(id);//check if existing
+    self.checkId = function (request, _id, callback) {
+        if (typeof _id != 'string') {
+            _id = self.generateId();//get new _id if not set
+        }
+        let get = request.get(_id);//check if existing
         get.onsuccess = event => {
             if (event.target.result != undefined) {
-                self.checkId(request, query, callback);
+                self.checkId(request, _id, callback);
             }
             else {
-                callback(id);//use the _id
+                callback(_id);//use the _id
             }
         }
 
@@ -227,14 +229,14 @@ function IndexedLibrary(name, version) {
 
             if (params.many == true && Array.isArray(params.query)) {// for many
                 for (let query of params.query) {
-                    self.checkId(request, query, _id => {//validate _id
+                    self.checkId(request, query._id, _id => {//validate _id
                         query._id = _id;
                         request.add(query);//add
                     });
                 }
             }
             else {
-                self.checkId(request, params.query, _id => {//validate _id
+                self.checkId(request, params.query._id, _id => {//validate _id
                     params.query._id = _id;
                     request.add(params.query);//add
                 });
@@ -366,7 +368,7 @@ function IndexedLibrary(name, version) {
                             }
                         }
                     }
-                    else {
+                    else if (found) {
                         foundCount = 1;
                         let request = store.delete(found._id);//delete document
                         request.onerror = event => {

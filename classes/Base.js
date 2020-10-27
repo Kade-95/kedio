@@ -17,13 +17,13 @@ class Base extends Components {
 
         if (this.Element) {
             this.styles = [
-                'https://kade-95.github.io/kerdx/css/table.css',
-                'https://kade-95.github.io/kerdx/css/cell.css',
-                'https://kade-95.github.io/kerdx/css/form.css',
-                'https://kade-95.github.io/kerdx/css/picker.css',
-                'https://kade-95.github.io/kerdx/css/select.css',
-                'https://kade-95.github.io/kerdx/css/json.css',
-                'https://kade-95.github.io/kerdx/css/popup.css'
+                'https://kade-95.github.io/kedio/css/table.css',
+                'https://kade-95.github.io/kedio/css/cell.css',
+                'https://kade-95.github.io/kedio/css/form.css',
+                'https://kade-95.github.io/kedio/css/picker.css',
+                'https://kade-95.github.io/kedio/css/select.css',
+                'https://kade-95.github.io/kedio/css/json.css',
+                'https://kade-95.github.io/kedio/css/popup.css'
             ];
             for (let style of this.styles) {
                 this.loadCss(style);

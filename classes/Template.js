@@ -150,6 +150,16 @@ class Template extends JSElements {
             });
         };
 
+        Element.prototype.onHover = function (movein = () => { }, moveout = () => { }) {
+            this.addMultipleEventListener('mouseenter', event => {
+                movein(event);
+            });
+
+            this.addMultipleEventListener('mouseleave', event => {
+                moveout(event);
+            });
+        }
+
         //a shorter name for querySelector
         Element.prototype.find = function (name = '', position = 0) {
             let element = null;
@@ -691,7 +701,6 @@ class Template extends JSElements {
         Element.prototype.toggleChild = function (child) {
             //Add child if element does not have a child else remove the child form the element
             var name, _classes, id, found = false;
-            console.log(child);
 
             this.children.forEach(node => {
                 name = node.nodeName;
@@ -987,8 +996,6 @@ class Template extends JSElements {
             for (let i = 0; i < list.length; i++) {
                 if (i == position) continue;
                 collection[i] = this.item(i);
-                console.log(collection);
-
             }
 
             return collection;
