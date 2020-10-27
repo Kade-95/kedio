@@ -10,7 +10,7 @@ function IndexedLibrary(name, version) {
     self.init = function (callback) {//initialize db by setting the current version
         const request = self.indexedDB.open(self.name);
         request.onupgradeneeded = (event) => {
-            if (callback != undefined) {
+            if (typeof callback == 'function') {
                 (callback(event.target.result));
             }
         }
@@ -32,6 +32,7 @@ function IndexedLibrary(name, version) {
                 if (self.version == undefined || self.version < request.result.version) {
                     self.version = request.result.version;
                 }
+                request.result.close();
                 resolve(self.version);
             }
 
@@ -50,7 +51,7 @@ function IndexedLibrary(name, version) {
             request.onupgradeneeded = (event) => {
                 self.version = request.result.version;//update version after upgrade
 
-                if (callback != undefined) {//run the callback if set
+                if (typeof callback == 'function') {//run the callback if set
                     let workedDb = callback(event.target.result);
                     workedDb.onerror = workedEvent => {
                         reject(workedEvent.target.error);
@@ -70,7 +71,9 @@ function IndexedLibrary(name, version) {
 
     self.collectionExists = function (collection) {
         return self.open().then(db => {
-            return db.objectStoreNames.contains(collection);//check if db has this collection in objectstore
+            let exists = db.objectStoreNames.contains(collection);//check if db has this collection in objectstore
+            db.close();
+            return exists;
         });
     }
 
@@ -83,47 +86,8 @@ function IndexedLibrary(name, version) {
                     db.createObjectStore(collection, { keyPath: '_id' });
                 }
             }
+            db.close();
             return db;
-        });
-    }
-
-    self.emptyCollection = function (collection) {
-        let removedCount = 0, foundCount = 0;//set the counters
-        return new Promise((resolve, reject) => {
-            self.find({ collection, query: {}, many: true }).then(found => {//find all documents
-                self.open().then(db => {
-                    if (db.objectStoreNames.contains(collection)) {//handle collection non-existence error
-                        let transaction = db.transaction(collection, 'readwrite');
-                        let store = transaction.objectStore(collection);
-
-                        transaction.onerror = event => {
-                            reject(event.target.error);
-                        }
-
-                        transaction.oncomplete = event => {
-                            resolve({ action: 'emptycollection', removedCount, ok: removedCount == foundCount });
-                        }
-                        foundCount = found.length;
-                        for (let data of found) {
-                            let request = store.delete(data._id);//delete each document
-                            request.onerror = event => {
-                                console.log(`Error while deleting documents => ${event.target.error}`);
-                            }
-
-                            request.onsuccess = event => {
-                                removedCount++;
-                            }
-                        }
-                    }
-                    else {
-                        resolve({ removedCount, ok: removedCount == foundCount });
-                    }
-                }).catch(error => {
-                    reject(error);
-                });
-            }).catch(error => {
-                reject(error);
-            })
         });
     }
 
@@ -136,14 +100,17 @@ function IndexedLibrary(name, version) {
                     let transaction = db.transaction(params.collection, 'readonly');
 
                     transaction.onerror = event => {
+                        db.close();
                         reject(event.target.error);
                     }
 
                     transaction.oncomplete = event => {
                         if (params.many == true) {//many 
+                            db.close();
                             resolve(documents);
                         }
                         else {
+                            db.close();
                             resolve(documents[0]);//single
                         }
                     }
@@ -153,6 +120,7 @@ function IndexedLibrary(name, version) {
                     let cursor;
 
                     request.onerror = (event) => {
+                        db.close();
                         reject(event.target.error);
                     }
 
@@ -171,15 +139,63 @@ function IndexedLibrary(name, version) {
                 }
                 else {
                     if (params.many == true) {//many 
+                        db.close();
                         resolve(documents);
                     }
                     else {
+                        db.close();
                         resolve(documents[0]);//single
                     }
                 }
             }).catch(error => {
+                db.close();
                 reject(error);
             });
+        });
+    }
+
+    self.emptyCollection = function (collection) {
+        let removedCount = 0, foundCount = 0;//set the counters
+        return new Promise((resolve, reject) => {
+            self.find({ collection, query: {}, many: true }).then(found => {//find all documents
+                self.open().then(db => {
+                    if (db.objectStoreNames.contains(collection)) {//handle collection non-existence error
+                        let transaction = db.transaction(collection, 'readwrite');
+                        let store = transaction.objectStore(collection);
+
+                        transaction.onerror = event => {
+                            db.close();
+                            reject(event.target.error);
+                        }
+
+                        transaction.oncomplete = event => {
+                            db.close();
+                            resolve({ action: 'emptycollection', removedCount, ok: removedCount == foundCount });
+                        }
+                        foundCount = found.length;
+                        for (let data of found) {
+                            let request = store.delete(data._id);//delete each document
+                            request.onerror = event => {
+                                console.log(`Error while deleting documents => ${event.target.error}`);
+                            }
+
+                            request.onsuccess = event => {
+                                removedCount++;
+                            }
+                        }
+                    }
+                    else {
+                        db.close();
+                        resolve({ removedCount, ok: removedCount == foundCount });
+                    }
+                }).catch(error => {
+                    db.close();
+                    reject(error);
+                });
+            }).catch(error => {
+                db.close();
+                reject(error);
+            })
         });
     }
 
@@ -218,10 +234,12 @@ function IndexedLibrary(name, version) {
         return new Promise((resolve, reject) => {
             let transaction = db.transaction(params.collection, 'readwrite');
             transaction.onerror = (event) => {
+                db.close();
                 reject(event.target.error)
             };
 
             transaction.oncomplete = (event) => {
+                db.close();
                 resolve({ action: 'insert', documents: params.query });
             }
 
@@ -270,16 +288,19 @@ function IndexedLibrary(name, version) {
         return new Promise((resolve, reject) => {
             self.open().then(db => {
                 if (!db.objectStoreNames.contains(params.collection)) {
+                    db.close();
                     reject('Collection not found');
                 }
 
                 let transaction = db.transaction(params.collection, 'readwrite');
 
                 transaction.onerror = event => {
+                    db.close();
                     reject(event.target.error);
                 }
 
                 transaction.oncomplete = event => {
+                    db.close();
                     resolve({ action: 'update', documents });
                 }
 
@@ -288,6 +309,7 @@ function IndexedLibrary(name, version) {
                 let documents = {};
 
                 request.onerror = (event) => {
+                    db.close();
                     reject(event.target.error);
                 }
 
@@ -312,6 +334,7 @@ function IndexedLibrary(name, version) {
                                     documents[rEvent.target.result] = { value: cursor.value, status: true };
                                 }
                             } catch (error) {
+                                db.close();
                                 reject(error);
                             }
                         }
@@ -322,6 +345,7 @@ function IndexedLibrary(name, version) {
                     }
                 };
             }).catch(error => {
+                db.close();
                 reject(error);
             });
         });
@@ -348,10 +372,12 @@ function IndexedLibrary(name, version) {
                     let store = transaction.objectStore(params.collection);
 
                     transaction.onerror = event => {
+                        db.close();
                         reject(event.target.error);
                     }
 
                     transaction.oncomplete = event => {
+                        db.close();
                         resolve({ action: 'delete', removedCount, ok: removedCount == foundCount });
                     }
 
@@ -380,9 +406,11 @@ function IndexedLibrary(name, version) {
                         }
                     }
                 }).catch(error => {
+                    db.close();
                     reject(error);
                 });
             }).catch(error => {
+                db.close();
                 reject(error);
             });
         });
