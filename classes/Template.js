@@ -124,39 +124,15 @@ class Template extends JSElements {
         }
 
         //perform actions on mouseenter and mouseleave
-        Element.prototype.hover = function (params = { css: {}, do: () => { } }) {
-
-            let css = [];
-            let cssValues;
-
-            this.addMultipleEventListener('mouseenter', event => {
-                cssValues = this.css();//store the current css values
-                if (self.isset(params.css)) {//if action is to change the styling
-                    css = self.array.each(Object.keys(params.css), value => {//store the new css style names to remove later
-                        return self.cssStyleName(value);
-                    });
-                    this.css(params.css);//set the css styles
-                }
-                if (self.isfunction(params.do)) {// if action is to perform do
-                    params.do(event);
-                }
+        Element.prototype.hover = function (movein = () => { }, moveout = () => { }) {
+            this.addEventListener('mouseenter', event => {
+                if (typeof movein === 'function')
+                    movein(event);
             });
 
-            this.addMultipleEventListener('mouseleave', event => {
-                if (self.isset(params.css)) {//if action was to change the styling
-                    this.cssRemove(css);//remove the new styling
-                    this.css(cssValues);//set the old ones
-                }
-            });
-        };
-
-        Element.prototype.onHover = function (movein = () => { }, moveout = () => { }) {
-            this.addMultipleEventListener('mouseenter', event => {
-                movein(event);
-            });
-
-            this.addMultipleEventListener('mouseleave', event => {
-                moveout(event);
+            this.addEventListener('mouseleave', event => {
+                if (typeof moveout === 'function')
+                    moveout(event);
             });
         }
 

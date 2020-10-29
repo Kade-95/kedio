@@ -1,18 +1,16 @@
-const Func = require('./Func');
-const Template = require('./Template');
+const Template = require('../classes/Template');
 
 function ColorPicker() {
 
     let self = {};
-    self.func = new Func();
-    self.elementModifier = new Template();
-    self.elementModifier.elementLibrary();
+    self.base = new Template(window);
+    self.base.elementLi
     self.colorIndicatorPosition = { x: 0, y: 0 };
     self.opacityIndicatorPosition = { x: 0, y: 0 };
     self.convertTo = 'RGB';
 
-    self.init = (params) => {
-        self.picker = self.elementModifier.createElement({
+    self.init = (params = {}) => {
+        self.picker = self.base.createElement({
             element: 'div', attributes: { class: 'color-picker' }, children: [
                 {
                     element: 'span', attributes: { id: 'color-picker-setters' }, children: [
@@ -40,6 +38,85 @@ function ColorPicker() {
                             ]
                         }
                     ]
+                },
+                {
+                    element: 'style',
+                    attributes: { type: 'text/css', rel: 'stylesheet' },
+                    text: `.color-picker {
+                        padding: .5em;
+                        display: grid;
+                        z-index: 20;
+                    }
+                    
+                    #color-picker-setters {
+                        display: grid;
+                        grid-template-columns: 1fr min-content;
+                        gap: 1em;
+                        height: inherit;
+                        width: inherit;
+                    }
+                    
+                    #color-picker-colors-window {
+                        display: block;
+                        border: 1px solid gray;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    #color-picker-opacities-window {
+                        width: 20px;
+                        display: block;
+                        border: 1px solid gray;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    #color-picker-color-indicator {
+                        position: absolute;
+                        padding: .5em;
+                        border: 1px solid black;
+                        border-radius: 100%;
+                        top: 0;
+                        left: 0;
+                    }
+                    
+                    #color-picker-opacity-indicator {
+                        position: absolute;
+                        padding: .2em;
+                        background-color: black;
+                        top: 0;
+                        left: 0;
+                    }
+                    
+                    #color-picker-result {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-around;
+                        align-items: center;
+                        margin: .1em 0em;
+                    }
+                    
+                    #picked-color {
+                        width: 50px;
+                        height: 30px;
+                        border: 1px solid black;
+                    }
+                    
+                    #picked-color-window {
+                        display: grid;
+                        gap: .3em;
+                        grid-template-columns: max-content;
+                        grid-template-rows: repeat(2, 1fr);
+                        justify-items: left;
+                    }
+                    
+                    #picked-color-value {
+                        display: inline-flex;
+                        flex-direction: row;
+                        justify-content: space-around;
+                        align-items: center;
+                        color: black;
+                    }`
                 }
             ]
         });
@@ -50,9 +127,9 @@ function ColorPicker() {
         self.opacityCanvas = self.picker.find('#color-picker-opacities');
         self.colorMarker = self.picker.find('#color-picker-color-indicator');
         self.opacityMarker = self.picker.find('#color-picker-opacity-indicator');
-        self.width = params.width;
-        self.height = params.height;
-        self.pickedColor = params.color || 'rgb(0, 0, 0)';
+        self.width = params.width ? params.width : 300;
+        self.height = params.height ? params.height : 300;
+        self.pickedColor = params.color ? params.color : 'rgb(0, 0, 0)';
         self.colorWindow.css({ height: self.height + 'px' });
         self.colorCanvas.width = self.width;
         self.colorCanvas.height = self.height;
@@ -147,6 +224,16 @@ function ColorPicker() {
             }
         };
 
+        const colorClicked = (event) => {
+            self.colorIndicatorPosition.x = event.clientX - self.colorCanvas.getBoundingClientRect().left;
+            self.colorIndicatorPosition.y = event.clientY - self.colorCanvas.getBoundingClientRect().top;
+            self.colorMarker.css({ top: self.colorIndicatorPosition.y + 'px', left: self.colorIndicatorPosition.x + 'px' });
+
+            let picked = self.getPickedColor();
+            self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b})`;
+            self.reply();
+        }
+
         const colorMouseUp = (event) => {
             isColorMouseDown = false;
             self.calibrateOpacity();
@@ -155,6 +242,7 @@ function ColorPicker() {
         //Register
         self.colorCanvas.addEventListener("mousedown", colorMouseDown);
         self.colorCanvas.addEventListener("mousemove", colorMouseMove);
+        self.colorCanvas.addEventListener("click", colorClicked);
         self.colorCanvas.addEventListener("mouseup", colorMouseUp);
 
         const opacityMouseDown = (event) => {
@@ -177,12 +265,23 @@ function ColorPicker() {
             }
         };
 
+        const opacityClicked = (event) => {
+            self.opacityIndicatorPosition.x = event.clientX - self.opacityCanvas.getBoundingClientRect().left;
+            self.opacityIndicatorPosition.y = event.clientY - self.opacityCanvas.getBoundingClientRect().top;
+            self.opacityMarker.css({ top: self.opacityIndicatorPosition.y + 'px' });
+
+            let picked = self.getPickedOpacity();
+            self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b}, ${picked.a})`;
+            self.reply();
+        };
+
         const opacityMouseUp = (event) => {
             isOpacityMouseDown = false;
         };
 
         self.opacityCanvas.addEventListener("mousedown", opacityMouseDown);
         self.opacityCanvas.addEventListener("mousemove", opacityMouseMove);
+        self.opacityCanvas.addEventListener("click", opacityClicked);
         self.opacityCanvas.addEventListener("mouseup", opacityMouseUp);
     }
 
@@ -247,25 +346,25 @@ function ColorPicker() {
             type = 'hex';
         }
         else if (color.indexOf('rgba') == 0) {
-            let values = self.func.inBetween(color, 'rgba(', ')');
+            let values = self.base.inBetween(color, 'rgba(', ')');
             if (values != -1 && values.split(',').length == 4) {
                 type = 'rgba';
             }
         }
         else if (color.indexOf('rgb') == 0) {
-            let values = self.func.inBetween(color, 'rgb(', ')');
+            let values = self.base.inBetween(color, 'rgb(', ')');
             if (values != -1 && values.split(',').length == 3) {
                 type = 'rgb';
             }
         }
         else if (color.indexOf('hsla') == 0) {
-            let values = self.func.inBetween(color, 'hsla(', ')');
+            let values = self.base.inBetween(color, 'hsla(', ')');
             if (values != -1 && values.split(',').length == 4) {
                 type = 'hsla';
             }
         }
         else if (color.indexOf('hsl') == 0) {
-            let values = self.func.inBetween(color, 'hsl(', ')');
+            let values = self.base.inBetween(color, 'hsl(', ')');
             if (values != -1 && values.split(',').length == 3) {
                 type = 'hsl';
             }
@@ -319,7 +418,7 @@ function ColorPicker() {
         let end = rgb.indexOf(')');
         let [r, g, b, a] = rgb.slice(start, end).split(',');
 
-        if (!self.func.isset(a)) {
+        if (!self.base.isset(a)) {
             a = 1;
         }
 
@@ -360,7 +459,7 @@ function ColorPicker() {
         let [r, g, b, a] = rgb.slice(start, end).split(',');
 
         console.log(r, g, b);
-        if (!self.func.isset(a)) {
+        if (!self.base.isset(a)) {
             a = 1;
         }
 
@@ -419,7 +518,7 @@ function ColorPicker() {
         let end = hsl.indexOf(')');
         let [h, s, l, a] = hsl.slice(start, end).split(',');
 
-        if (!self.func.isset(a)) {
+        if (!self.base.isset(a)) {
             a = 1;
         }
 
@@ -489,7 +588,7 @@ function ColorPicker() {
     }
 
     self.getOpacity = (color = 'rgb(0, 0, 0)') => {
-        color = self.func.inBetween(color, '(', ')');
+        color = self.base.inBetween(color, '(', ')');
         let [r, g, b, a] = color.split(',');
         return a.trim();
     }

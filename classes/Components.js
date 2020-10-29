@@ -96,6 +96,55 @@ class Components extends Template {
             });
             cell.css({ position: 'relative' });
         }
+
+        cell.makeElement({
+            element: 'style', text: `
+        .cell {
+            display: inline-grid;
+            margin: .5em;
+            font-size: 1em;
+            letter-spacing: .1em;
+            font-weight: 300;
+            border: 1px solid gray;
+            border-radius: 10px;
+            overflow: auto;
+            text-align: center;
+            min-width: 100px;
+            overflow-y: hidden;
+        }
+        
+        .cell:hover, .cell:focus {
+            border-radius: unset;
+            box-shadow: var(--primary-shadow);
+            transition-duration: .2s;
+        }
+        
+        .cell-label {
+            text-transform: uppercase;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 0.3em;
+            text-align: center;
+            font-weight: 400;
+        }
+        
+        .cell-data{
+            padding: 0.3em;
+            outline: none;
+            border: none;
+            color: var(--secondary-color);
+            min-height: 30px;
+            text-align: center;
+            justify-self: center;
+            max-width: 300px;
+            max-height: 100px;
+            overflow: auto;
+        }
+        
+        .cell-data:hover, .cell-data:focus {
+            cursor: text;
+            transition-duration: 1s;
+        }`})
         return cell;
     }
 
@@ -131,7 +180,7 @@ class Components extends Template {
                 { element: 'div', attributes: params.attributes }
             );//create the table 
 
-        table.classList.add('kerdx-table');//add table to the class
+        table.classList.add('kedio-table');//add table to the class
 
         for (let content of params.contents) {//loop through the json array
             i = params.contents.indexOf(content);//get the position of the row
@@ -139,18 +188,18 @@ class Components extends Template {
                 if (headers.indexOf(name) == -1) {//add to headers
                     headers.push(name);
                     columns[name] = table.makeElement({
-                        element: 'column', attributes: { class: 'kerdx-table-column', 'data-name': name }, children: [
+                        element: 'column', attributes: { class: 'kedio-table-column', 'data-name': name }, children: [
                             {
-                                element: 'span', attributes: { class: 'kerdx-table-column-title', 'data-name': name }, children: [
-                                    { element: 'p', attributes: { class: 'kerdx-table-column-title-text' }, text: name }
+                                element: 'span', attributes: { class: 'kedio-table-column-title', 'data-name': name }, children: [
+                                    { element: 'p', attributes: { class: 'kedio-table-column-title-text' }, text: name }
                                 ]
                             },
-                            { element: 'div', attributes: { class: 'kerdx-table-column-contents' } }
+                            { element: 'div', attributes: { class: 'kedio-table-column-contents' } }
                         ]
                     });
 
                     if (this.isset(params.sort)) {//make sortable if needed
-                        columns[name].find('.kerdx-table-column-title').makeElement({ element: 'i', attributes: { class: 'kerdx-table-column-title-sort', 'data-icon': 'fas, fa-arrow-down' } });
+                        columns[name].find('.kedio-table-column-title').makeElement({ element: 'i', attributes: { class: 'kedio-table-column-title-sort', 'data-icon': 'fas, fa-arrow-down' } });
                     }
                 }
             }
@@ -164,7 +213,7 @@ class Components extends Template {
         for (let name of headers) {//loop through the headers and add the contents 
             for (let content of params.contents) {
                 i = params.contents.indexOf(content);
-                columns[name].find('.kerdx-table-column-contents').makeElement({ element: 'span', attributes: { class: 'kerdx-table-column-cell', 'data-name': name, 'data-value': content[name] || '', 'data-row': i }, html: content[name] || '' });
+                columns[name].find('.kedio-table-column-contents').makeElement({ element: 'span', attributes: { class: 'kedio-table-column-cell', 'data-name': name, 'data-value': content[name] || '', 'data-row': i }, html: content[name] || '' });
             }
 
             if (params.projection[name] == -1 || (hide && !this.isset(params.projection[name]))) {
@@ -178,9 +227,9 @@ class Components extends Template {
         table.css({ gridTemplateColumns: `repeat(${columnCount}, 1fr)` });
 
         let tableContainer = this.createElement({//create table container and title
-            element: 'div', attributes: { class: 'kerdx-table-container' }, children: [
+            element: 'div', attributes: { class: 'kedio-table-container' }, children: [
                 {
-                    element: 'span', attributes: { class: 'kerdx-table-titleandsearch' }
+                    element: 'span', attributes: { class: 'kedio-table-titleandsearch' }
                 },
                 table
             ]
@@ -189,7 +238,7 @@ class Components extends Template {
         let titleCount = 0;
 
         if (this.isset(params.title)) {// create the title text if needed
-            tableContainer.find('.kerdx-table-titleandsearch').makeElement({ element: 'h5', attributes: { class: 'kerdx-table-title' }, text: params.title });
+            tableContainer.find('.kedio-table-titleandsearch').makeElement({ element: 'h5', attributes: { class: 'kedio-table-title' }, text: params.title });
             titleCount++;
         }
 
@@ -198,12 +247,12 @@ class Components extends Template {
         }
 
         if (this.isset(params.search)) {// create the search area
-            tableContainer.find('.kerdx-table-titleandsearch').makeElement({ element: 'input', attributes: { class: 'kerdx-table-search', placeHolder: 'Search table...' } });
+            tableContainer.find('.kedio-table-titleandsearch').makeElement({ element: 'input', attributes: { class: 'kedio-table-search', placeHolder: 'Search table...' } });
             titleCount++;
         }
 
         if (this.isset(params.filter)) {//create the filter area
-            tableContainer.find('.kerdx-table-titleandsearch').makeElement({ element: 'select', attributes: { class: 'kerdx-table-filter' }, options: params.filter });
+            tableContainer.find('.kedio-table-titleandsearch').makeElement({ element: 'select', attributes: { class: 'kedio-table-filter' }, options: params.filter });
             titleCount++;
         }
 
@@ -211,21 +260,190 @@ class Components extends Template {
             table.textContent = 'Empty Table';
         }
 
-        tableContainer.makeElement({// arrange the table title
-            element: 'style', text: `
+        tableContainer.makeElement(
+            [{// arrange the table title
+                element: 'style', text: `
             @media(min-width: 700px) {
-                .kerdx-table-titleandsearch {
+                .kedio-table-titleandsearch {
                   grid-template-columns: repeat(${titleCount}, 1fr);
                 }
               }
-        `});
+        `},
+            {
+                element: 'style', text: `.kedio-table-container {
+            width: var(--match-parent);
+            padding: 0em 1em;
+            height: var(--fill-parent);
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: max-content 1fr;
+          }
+          
+          .kedio-table-titleandsearch {
+            margin-bottom: 1em;
+            display: grid;
+            grid-gap: 1em;
+            padding: .5em;
+            align-items: center;
+            border-bottom: 1px solid lightgray;
+            background-color: var(--primary-color);
+          }
+          
+          .kedio-table-title {
+            font-weight: 1000;
+            font-size: 1.5em;
+            text-transform: capitalize;
+          }
+          
+          .kedio-table-search {
+            justify-self: flex-end;
+            border-radius: 10px;
+            border: 1px solid var(--secondary-color);
+            outline: none;
+            padding: 1em;
+            width: var(--match-parent);
+          }
+          
+          .kedio-table-filter {
+            justify-self: flex-end;
+            border-radius: 10px;
+            border: 1px solid var(--secondary-color);
+            outline: none;
+            padding: 1em;
+            width: var(--match-parent);
+          }
+          
+          .kedio-table {
+            text-align: center;
+            font-size: 1em;
+            font-weight: 300;
+            width: var(--match-parent);
+            grid-template-rows: 1fr;
+            overflow: auto;
+            display: grid;
+            border: 1px solid var(--secondary-color);
+          }
+          
+          .kedio-table .kedio-table-column{
+            height: var(--fill-parent);
+          }
+          
+          .kedio-table .kedio-table-column-title {
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            width: var(--match-parent);
+            display: grid;
+            grid-template-columns: repeat(2, max-content);
+            gap: .5em;
+            justify-content: center;
+            align-items: center;
+            padding: .5em;
+            z-index: 1;
+          }
+          
+          .kedio-table .kedio-table-column-title-text{
+            color: inherit;
+            background-color: transparent;
+            font-size: inherit;
+          }
+          
+          .kedio-table .kedio-table-column-title-sort{
+            color: inherit;
+            background-color: transparent;
+            font-size: inherit;
+            cursor: pointer;
+            display: none;
+          }
+          
+          .kedio-table .kedio-table-column-contents{
+            display: grid;
+            gap: .2em;
+            width: var(--match-parent);
+          }
+          
+          .kedio-table .kedio-table-column-cell{
+            min-width: max-content;
+            width: var(--match-parent);
+            padding: .5em;
+            min-height: 20px;
+          }
+          
+          .kedio-table .kedio-table-column-cell:nth-child(odd) {
+            background-color: var(--primary-color);
+          }
+          
+          .kedio-table .kedio-table-column-cell:nth-child(even) {
+            background-color: var(--lighter-secondary-color);
+          }
+          
+          .kedio-table input {
+            width: inherit;
+            height: inherit;
+            text-transform: inherit;
+            font-size: inherit;
+          }
+          
+          .kedio-table img {
+            width: 20px;
+            height: auto;
+          }
+          
+          .kedio-table a:visited {
+            color: var(--accient-color);
+          }
+          
+          .kedio-table-cell a {
+            display: block;
+            width: var(--fill-parent);
+            height: var(--fill-parent);
+            text-decoration: none;
+            color: var(--accient-color);
+            font-size: 1em;
+          }
+          
+          .kedio-table-cell a:hover {
+            background-color: var(--light-primary-color);
+            color: var(--light-secondary-color);
+            transition-duration: .4s;
+          }
+          
+          .kedio-table .kedio-table-column-cell.kedio-table-selected-row {
+            color: var(--accient-color);
+          }
+          
+          .kedio-table-options {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--accient-color);
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            top: 0;
+          }
+          
+          .kedio-table-options .kedio-table-option {
+            padding: .5em;
+            color: inherit;
+            cursor: pointer;
+            height: 20px;
+            width: 20px;
+          }
+          
+          .kedio-table-option:hover {
+            color: var(--primary-color);
+          }
+          `}]);
 
         return tableContainer;
     }
 
     getTableData(table) {
         let data = [];
-        let cells = table.findAll('.kerdx-table-column-cell');
+        let cells = table.findAll('.kedio-table-column-cell');
 
         for (let i = 0; i < cells.length; i++) {
             let { name, value, row } = cells[i].dataset;
@@ -261,10 +479,10 @@ class Components extends Template {
     listenTable(params = { table: {}, options: [] }, callbacks = { click: () => { }, filter: () => { } }) {
         params.options = params.options || [];
         callbacks = callbacks || [];
-        let table = params.table.find('.kerdx-table');
+        let table = params.table.find('.kedio-table');
 
         let options = this.createElement({
-            element: 'span', attributes: { class: 'kerdx-table-options' }
+            element: 'span', attributes: { class: 'kedio-table-options' }
         });
 
         let list = {
@@ -278,12 +496,12 @@ class Components extends Template {
         for (let option of params.options) {
             optionClass = list[option] || `fas fa-${option}`;
             let anOption = options.makeElement({
-                element: 'i', attributes: { class: optionClass + ' kerdx-table-option', id: 'kerdx-table-option-' + option }
+                element: 'i', attributes: { class: optionClass + ' kedio-table-option', id: 'kedio-table-option-' + option }
             });
         }
 
-        let tableTitles = table.findAll('.kerdx-table-column-title');
-        let tableColumns = table.findAll('.kerdx-table-column');
+        let tableTitles = table.findAll('.kedio-table-column-title');
+        let tableColumns = table.findAll('.kedio-table-column');
         let rows = [];
         let firstColumn = tableColumns[0];
         let firstVisibleColumn;
@@ -299,8 +517,8 @@ class Components extends Template {
             }
         }
 
-        let firstCells = firstColumn.findAll('.kerdx-table-column-cell');
-        let firstVisibleCells = firstVisibleColumn.findAll('.kerdx-table-column-cell');
+        let firstCells = firstColumn.findAll('.kedio-table-column-cell');
+        let firstVisibleCells = firstVisibleColumn.findAll('.kedio-table-column-cell');
 
         let tableRow;
 
@@ -308,53 +526,53 @@ class Components extends Template {
             rows.push(firstCells[i].dataset.row);
         }
 
-        if (params.table.find('.kerdx-table').dataset.sort == 'true') {
+        if (params.table.find('.kedio-table').dataset.sort == 'true') {
             for (let i = 0; i < tableTitles.length; i++) {
                 tableTitles[i].addEventListener('mouseenter', event => {
-                    tableTitles[i].find('.kerdx-table-column-title-sort').css({ display: 'unset' });
+                    tableTitles[i].find('.kedio-table-column-title-sort').css({ display: 'unset' });
                 });
 
                 tableTitles[i].addEventListener('mouseleave', event => {
-                    tableTitles[i].find('.kerdx-table-column-title-sort').css({ display: 'none' });
+                    tableTitles[i].find('.kedio-table-column-title-sort').css({ display: 'none' });
                 });
 
-                tableTitles[i].find('.kerdx-table-column-title-sort').addEventListener('click', event => {
+                tableTitles[i].find('.kedio-table-column-title-sort').addEventListener('click', event => {
                     let direction;
-                    tableTitles[i].find('.kerdx-table-column-title-sort').toggleClasses('fas, fa-arrow-up');
-                    tableTitles[i].find('.kerdx-table-column-title-sort').toggleClasses('fas, fa-arrow-down');
-                    if (tableTitles[i].find('.kerdx-table-column-title-sort').dataset.direction == 'up') {
-                        tableTitles[i].find('.kerdx-table-column-title-sort').dataset.direction = 'down';
+                    tableTitles[i].find('.kedio-table-column-title-sort').toggleClasses('fas, fa-arrow-up');
+                    tableTitles[i].find('.kedio-table-column-title-sort').toggleClasses('fas, fa-arrow-down');
+                    if (tableTitles[i].find('.kedio-table-column-title-sort').dataset.direction == 'up') {
+                        tableTitles[i].find('.kedio-table-column-title-sort').dataset.direction = 'down';
                         direction = 1;
                     }
                     else {
-                        tableTitles[i].find('.kerdx-table-column-title-sort').dataset.direction = 'up';
+                        tableTitles[i].find('.kedio-table-column-title-sort').dataset.direction = 'up';
                         direction = -1;
                     }
 
-                    let text = tableTitles[i].find('.kerdx-table-column-title-text').textContent;
+                    let text = tableTitles[i].find('.kedio-table-column-title-text').textContent;
 
-                    let data = this.sortTable(params.table.find('.kerdx-table'), text, direction);
+                    let data = this.sortTable(params.table.find('.kedio-table'), text, direction);
                     let newTable = this.createTable({ contents: data });
 
-                    let newTableColumns = newTable.findAll('.kerdx-table-column');
+                    let newTableColumns = newTable.findAll('.kedio-table-column');
                     for (let j = 0; j < newTableColumns.length; j++) {
-                        tableColumns[j].find('.kerdx-table-column-contents').innerHTML = newTableColumns[j].find('.kerdx-table-column-contents').innerHTML;
+                        tableColumns[j].find('.kedio-table-column-contents').innerHTML = newTableColumns[j].find('.kedio-table-column-contents').innerHTML;
                     }
 
-                    tableColumns = table.findAll('.kerdx-table-column');
+                    tableColumns = table.findAll('.kedio-table-column');
                     filter();
                 });
             }
         }
 
-        if (!this.isnull(params.table.find('.kerdx-table-search'))) {
-            params.table.find('.kerdx-table-search').onChanged(value => {
+        if (!this.isnull(params.table.find('.kedio-table-search'))) {
+            params.table.find('.kedio-table-search').onChanged(value => {
                 filter();
             });
         }
 
-        if (!this.isnull(params.table.find('.kerdx-table-filter'))) {
-            params.table.find('.kerdx-table-filter').onChanged(value => {
+        if (!this.isnull(params.table.find('.kedio-table-filter'))) {
+            params.table.find('.kedio-table-filter').onChanged(value => {
                 filter();
             });
         }
@@ -362,17 +580,17 @@ class Components extends Template {
         let searchValue, filterValue;
 
         let filter = () => {
-            if (!this.isnull(params.table.find('.kerdx-table-search'))) {
-                searchValue = params.table.find('.kerdx-table-search').value;
+            if (!this.isnull(params.table.find('.kedio-table-search'))) {
+                searchValue = params.table.find('.kedio-table-search').value;
             }
 
-            if (!this.isnull(params.table.find('.kerdx-table-filter'))) {
-                filterValue = params.table.find('.kerdx-table-filter').value;
+            if (!this.isnull(params.table.find('.kedio-table-filter'))) {
+                filterValue = params.table.find('.kedio-table-filter').value;
             }
 
             for (let i = 0; i < rows.length; i++) {
                 let hide = false;
-                tableRow = table.findAll(`.kerdx-table-column-cell[data-row="${i}"]`);
+                tableRow = table.findAll(`.kedio-table-column-cell[data-row="${i}"]`);
 
                 for (let j = 0; j < tableRow.length; j++) {
                     tableRow[j].cssRemove(['display']);
@@ -403,14 +621,14 @@ class Components extends Template {
         if (this.isset(callbacks.click)) {
             table.addMultipleEventListener('mousedown, touchstart', event => {
                 let target = event.target;
-                if (target.classList.contains('kerdx-table-option')) {
+                if (target.classList.contains('kedio-table-option')) {
                     if (this.isset(callbacks.click)) {
                         callbacks.click(event);
                     }
                 }
-                else if (target.classList.contains('kerdx-table-column-cell') || !this.isnull(target.getParents('.kerdx-table-column-cell'))) {
-                    if (!target.classList.contains('kerdx-table-column-cell')) {
-                        target = target.getParents('.kerdx-table-column-cell');
+                else if (target.classList.contains('kedio-table-column-cell') || !this.isnull(target.getParents('.kedio-table-column-cell'))) {
+                    if (!target.classList.contains('kedio-table-column-cell')) {
+                        target = target.getParents('.kedio-table-column-cell');
                     }
                     let position = target.dataset.row;
 
@@ -418,16 +636,16 @@ class Components extends Template {
                     firstVisibleCells[position].css({ position: 'relative' });
                     firstVisibleCells[position].append(options);
 
-                    if (params.table.classList.contains('kerdx-selectable')) {
-                        let row = table.findAll(`.kerdx-table-column-cell[data-row="${position}"]`);
+                    if (params.table.classList.contains('kedio-selectable')) {
+                        let row = table.findAll(`.kedio-table-column-cell[data-row="${position}"]`);
                         for (let i = 0; i < row.length; i++) {
-                            row[i].classList.toggle('kerdx-table-selected-row');
+                            row[i].classList.toggle('kedio-table-selected-row');
                         }
                         options.remove();
 
-                        if (!target.classList.contains('kerdx-table-selected-row')) {
-                            if (firstColumn.findAll('.kerdx-table-selected-row').length == 0) {
-                                params.table.classList.remove('kerdx-selectable');
+                        if (!target.classList.contains('kedio-table-selected-row')) {
+                            if (firstColumn.findAll('.kedio-table-selected-row').length == 0) {
+                                params.table.classList.remove('kedio-selectable');
                             }
                         }
                     }
@@ -437,17 +655,17 @@ class Components extends Template {
             table.pressed(event => {
                 let target = event.target;
                 if (event.duration > 300) {
-                    if (target.classList.contains('kerdx-table-column-cell') || !this.isnull(target.getParents('.kerdx-table-column-cell'))) {
-                        if (!target.classList.contains('kerdx-table-column-cell')) {
-                            target = target.getParents('.kerdx-table-column-cell');
+                    if (target.classList.contains('kedio-table-column-cell') || !this.isnull(target.getParents('.kedio-table-column-cell'))) {
+                        if (!target.classList.contains('kedio-table-column-cell')) {
+                            target = target.getParents('.kedio-table-column-cell');
                         }
                         let position = target.dataset.row;
 
-                        if (firstColumn.findAll('.kerdx-table-selected-row').length == 0 && !params.table.classList.contains('kerdx-selectable')) {
-                            params.table.classList.add('kerdx-selectable');
-                            let row = table.findAll(`.kerdx-table-column-cell[data-row="${position}"]`);
+                        if (firstColumn.findAll('.kedio-table-selected-row').length == 0 && !params.table.classList.contains('kedio-selectable')) {
+                            params.table.classList.add('kedio-selectable');
+                            let row = table.findAll(`.kedio-table-column-cell[data-row="${position}"]`);
                             for (let i = 0; i < row.length; i++) {
-                                row[i].classList.add('kerdx-table-selected-row');
+                                row[i].classList.add('kedio-table-selected-row');
                             }
                             options.remove();
                         }
@@ -460,30 +678,149 @@ class Components extends Template {
     createForm(params = { element: '', title: '', columns: 1, contents: {}, required: [], buttons: {} }) {
         let form = this.createElement({
             element: params.element || 'form', attributes: params.attributes, children: [
-                { element: 'h3', attributes: { class: 'kerdx-form-title' }, text: params.title },
-                { element: 'section', attributes: { class: 'kerdx-form-contents', style: { gridTemplateColumns: `repeat(${params.columns}, 1fr)` } } },
-                { element: 'section', attributes: { class: 'kerdx-form-buttons' } },
+                { element: 'h3', attributes: { class: 'kedio-form-title' }, text: params.title },
+                { element: 'section', attributes: { class: 'kedio-form-contents', style: { gridTemplateColumns: `repeat(${params.columns}, 1fr)` } } },
+                { element: 'section', attributes: { class: 'kedio-form-buttons' } },
+                {
+                    element: 'style', text: `.kedio-form {
+                    text-align: center;
+                    justify-self: center;
+                    align-self: center;
+                    display: grid;
+                    grid-row-gap: 1em;
+                    grid-template-rows: repeat(4, min-content);
+                    width: var(--match-parent);
+                    max-width: 700px;
+                    margin: 2em;
+                    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+                    border: 1px solid var(--secondary-color);
+                }
+                
+                .kedio-form-title {
+                    font-weight: 300;
+                    letter-spacing: .05em;
+                    font-size: 1.2em;
+                    text-align: center;
+                    background-color: var(--secondary-color);
+                    color: var(--primary-color);
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    padding: 1em;
+                }
+                
+                .kedio-form-contents{
+                    display: grid;
+                    grid-gap: 1em;
+                    padding: 1em;
+                    align-items: start;
+                }
+                
+                .kedio-form-buttons{
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    justify-content: center;
+                    align-content: center;
+                    padding: 1em;
+                }
+                
+                .kedio-form-buttons button{
+                    width: var(--fill-parent);
+                    border-radius: 20px;
+                    padding: 1em;
+                    border: 1px solid var(--secondary-color);
+                    cursor: pointer;
+                    background-color: var(--secondary-color);
+                    color: var(--primary-color);
+                }
+                
+                .kedio-form-single-content{
+                    display: grid;
+                    padding: .5em;
+                }
+                
+                .kedio-form-label {
+                    color: #666666;
+                    text-transform: capitalize;
+                    text-align: justify;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                
+                .kedio-form-note{
+                    color: #999999;
+                    font-size: .7em;
+                }
+                
+                .kedio-form-data{
+                    border: 1px solid var(--secondary-color);
+                    padding: .7em .3em;
+                    text-align: justify;
+                    min-width: unset;
+                    border-radius: 20px;
+                    outline: none;
+                }
+                
+                .kedio-form-data:focus {
+                    border-color: var(--secondary-color);
+                }
+                
+                .kedio-form-row{
+                    position: relative;
+                    display: grid;
+                    border: 1px solid var(--secondary-color);
+                    grid-gap: .5em;
+                }
+                
+                .kedio-form-row-contents{
+                    display: grid;
+                    grid-gap: .5em;
+                }
+                
+                .kedio-form .cell-label{
+                    font-size: .9em;
+                }
+                
+                .kedio-form .cell-data{
+                    outline: none;
+                    border: none;
+                    min-height: 20px;
+                }
+                
+                .kedio-form-error{
+                    display: none;
+                    background-color: var(--accient-color);
+                    color: var(--secondary-color);
+                    font-size: .8em;
+                    padding: .5em;
+                }
+                
+                @media(min-width: 700px) {
+                    .kedio-form #remember-me {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }`}
             ]
         });
 
-        form.classList.add('kerdx-form');
+        form.classList.add('kedio-form');
 
         if (this.isset(params.parent)) params.parent.append(form);
         let note;
-        let formContents = form.find('.kerdx-form-contents');
+        let formContents = form.find('.kedio-form-contents');
 
         for (let key in params.contents) {
             note = (this.isset(params.contents[key].note)) ? `(${params.contents[key].note})` : '';
             let lableText = params.contents[key].label || this.camelCasedToText(key).toLowerCase();
             let block = formContents.makeElement({
-                element: 'div', attributes: { class: 'kerdx-form-single-content' }, children: [
-                    { element: 'label', html: lableText, attributes: { class: 'kerdx-form-label', for: key.toLowerCase() } }
+                element: 'div', attributes: { class: 'kedio-form-single-content' }, children: [
+                    { element: 'label', html: lableText, attributes: { class: 'kedio-form-label', for: key.toLowerCase() } }
                 ]
             });
 
             let data = block.makeElement(params.contents[key]);
-            data.classList.add('kerdx-form-data');
-            if (this.isset(params.contents[key].note)) block.makeElement({ element: 'span', text: params.contents[key].note, attributes: { class: 'kerdx-form-note' } });
+            data.classList.add('kedio-form-data');
+            if (this.isset(params.contents[key].note)) block.makeElement({ element: 'span', text: params.contents[key].note, attributes: { class: 'kedio-form-note' } });
 
             if (this.isset(params.required) && params.required.includes(key)) {
                 data.required = true;
@@ -491,28 +828,49 @@ class Components extends Template {
         }
 
         for (let key in params.buttons) {
-            form.find('.kerdx-form-buttons').makeElement(params.buttons[key]);
+            form.find('.kedio-form-buttons').makeElement(params.buttons[key]);
         }
 
-        form.makeElement({ element: 'span', attributes: { class: 'kerdx-form-error' }, state: { name: 'error', owner: `#${form.id}` } });
+        form.makeElement({ element: 'span', attributes: { class: 'kedio-form-error' }, state: { name: 'error', owner: `#${form.id}` } });
 
         return form;
     }
 
     picker(params = { title: '', contents: [] }, callback = (event) => { }) {
         let picker = this.createElement({
-            element: 'div', attributes: { class: 'kerdx-picker' }, children: [
-                { element: 'h3', attributes: { class: 'kerdx-picker-title' }, text: params.title || '' },
-                { element: 'div', attributes: { class: 'kerdx-picker-contents' } }
+            element: 'div', attributes: { class: 'kedio-picker' }, children: [
+                { element: 'h3', attributes: { class: 'kedio-picker-title' }, text: params.title || '' },
+                { element: 'div', attributes: { class: 'kedio-picker-contents' } },
+                {
+                    element: 'style', text: `.kedio-picker {
+                    display: grid;
+                    height: var(--fill-parent);
+                    width: var(--fill-parent);
+                    grid-template-rows: max-content 1fr;
+                }
+                
+                .kedio-picker-contents {
+                    display: block;
+                    height: var(--fill-parent);
+                    width: var(--fill-parent);
+                }
+                
+                .kedio-picker-single {
+                    padding: 2em;
+                    display: inline-block;
+                    margin: 1em;
+                    border: 1px solid var(--secondary-color);
+                    margin: 1em;
+                }`}
             ]
         });
 
         for (let content of params.contents) {
-            picker.find('.kerdx-picker-contents').makeElement({ element: 'span', attributes: { class: 'kerdx-picker-single', 'data-name': content }, text: content });
+            picker.find('.kedio-picker-contents').makeElement({ element: 'span', attributes: { class: 'kedio-picker-single', 'data-name': content }, text: content });
         }
 
         picker.addEventListener('dblclick', event => {
-            if (event.target.classList.contains('kerdx-picker-single')) {
+            if (event.target.classList.contains('kedio-picker-single')) {
                 callback(event.target.dataset.name);
             }
         });
@@ -530,23 +888,74 @@ class Components extends Template {
         params.attributes.style.height = params.attributes.style.height || '50vh';
 
         let popUp = this.createElement({
-            element: 'div', attributes: { class: 'kerdx-pop-up' }, children: [
+            element: 'div', attributes: { class: 'kedio-pop-up' }, children: [
                 {
-                    element: 'div', attributes: { id: 'pop-up-window', class: 'kerdx-pop-up-window' }, children: [
+                    element: 'div', attributes: { id: 'pop-up-window', class: 'kedio-pop-up-window' }, children: [
                         {
-                            element: 'div', attributes: { id: 'pop-up-menu', class: 'kerdx-pop-up-menu' }, children: [
+                            element: 'div', attributes: { id: 'pop-up-menu', class: 'kedio-pop-up-menu' }, children: [
                                 { element: 'p', attributes: { id: '', style: { color: 'inherit', padding: '1em' } }, text: title },
-                                { element: 'i', attributes: { id: 'toggle-window', class: 'kerdx-pop-up-control fas fa-expand-alt' } },
-                                { element: 'i', attributes: { id: 'close-window', class: 'kerdx-pop-up-control fas fa-times' } }
+                                { element: 'i', attributes: { id: 'toggle-window', class: 'kedio-pop-up-control fas fa-expand-alt' } },
+                                { element: 'i', attributes: { id: 'close-window', class: 'kedio-pop-up-control fas fa-times' } }
                             ]
                         },
                         {
-                            element: 'div', attributes: { id: 'pop-up-content', class: 'kerdx-pop-up-content' }, children: [
+                            element: 'div', attributes: { id: 'pop-up-content', class: 'kedio-pop-up-content' }, children: [
                                 content
                             ]
                         }
                     ]
+                },
+                {
+                    element: 'style', text: `.kedio-pop-up {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    right: 0;
+                    background-color: var(--light-secondary-color);
+                    display: grid;
+                    width: var(--fill-parent);
+                    height: var(--fill-parent);
+                    justify-items: center;
+                    align-items: center;
+                    z-index: 1000;
                 }
+                
+                .kedio-pop-up-window {
+                    background-color: var(--primary-color);
+                    display: grid;
+                    grid-gap: 1em;
+                    justify-items: center;
+                    align-items: start;
+                    grid-template-columns: 1fr;
+                    grid-template-rows: max-content 1fr;
+                    overflow: hidden;
+                }
+                
+                .kedio-pop-up-menu {
+                    background-color: var(--secondary-color);
+                    color: var(--primary-color);
+                    display: grid;
+                    grid-gap: .5em;
+                    grid-template-columns: 1fr repeat(2, min-content);
+                    width: 100%;
+                    justify-items: flex-end;
+                    align-items: center
+                }
+                
+                .kedio-pop-up-control {
+                    color: var(--primary-color);
+                    height: 20px;
+                    width: 20px;
+                    padding: 1em
+                }
+                
+                .kedio-pop-up-content {
+                    display: block;
+                    overflow: auto;
+                    height: 100%;
+                    width: 100%;
+                }`}
             ]
         });
 
@@ -582,20 +991,90 @@ class Components extends Template {
         let select = this.createElement({
             element: 'div', attributes: params.attributes, children: [
                 {
-                    element: 'span', attributes: { class: 'kerdx-select-control', }, children: [
-                        { element: 'input', attributes: { class: 'kerdx-select-input', value: params.value || '', ignore: true } },
+                    element: 'span', attributes: { class: 'kedio-select-control', }, children: [
+                        { element: 'input', attributes: { class: 'kedio-select-input', value: params.value || '', ignore: true } },
                         {
-                            element: 'span', attributes: { class: 'kerdx-select-toggle' }
+                            element: 'span', attributes: { class: 'kedio-select-toggle' }
                         }
                     ]
                 },
-                { element: 'input', attributes: { class: 'kerdx-select-search', placeHolder: 'Search me...', ignore: true } },
+                { element: 'input', attributes: { class: 'kedio-select-search', placeHolder: 'Search me...', ignore: true } },
                 {
-                    element: 'span', attributes: { class: 'kerdx-select-contents' }
+                    element: 'span', attributes: { class: 'kedio-select-contents' }
+                },
+                {
+                    element: 'style', text: `.kedio-select {
+                    display: grid;
+                    max-height: 250px;
+                    height: max-content;
+                    grid-template-rows: max-content 1fr;
+                    position: relative;
+                    z-index: 0;
                 }
+                
+                .kedio-select-control {
+                    display: grid;
+                    grid-template-columns: 1fr max-content;
+                    align-items: centers;
+                }
+                
+                .kedio-select-input {
+                    border: none;
+                    background: transparent;
+                    color: var(--secondary-color);
+                }
+                
+                .kedio-select-search {
+                    background: var(--primary-color);
+                    color: var(--secondary-color);
+                    width: var(--match-parent);
+                    padding: .3em;
+                    justify-self: center;
+                    display: none;
+                    border: none;
+                }
+                
+                .kedio-select-toggle {
+                    border-left: 2px solid var(--secondary-color);
+                    border-top: 2px solid var(--secondary-color);
+                    transform: rotate(225deg);
+                    width: .5em;
+                    height: .5em;
+                    margin: .3em;
+                    cursor: pointer
+                }
+                
+                .kedio-select-contents {
+                    width: var(--fill-parent);
+                    position: absolute;
+                    display: none;
+                    justify-items: center;
+                    align-items: flex-start;
+                    flex-direction: column;
+                    overflow: auto;
+                    z-index: 1000;
+                    min-height: 50px;
+                    height: max-content;
+                    max-height: 250px;
+                    border: 1px solid;
+                    background-color: var(--primary-color);
+                }
+                
+                .kedio-select-option {
+                    display: flex;
+                    place-items: center;
+                    width: var(--match-parent);
+                    padding: .5em;
+                    cursor: pointer;
+                }
+                
+                .kedio-select-option:hover, .kedio-select-active-option{
+                    background-color: var(--secondary-color);
+                    color: var(--primary-color);
+                }`}
             ]
         });
-        select.classList.add('kerdx-select');
+        select.classList.add('kedio-select');
         let setValue = select.getAttribute('value');
         select.value = [];
         if (!this.isnull(setValue)) {
@@ -606,10 +1085,10 @@ class Components extends Template {
 
         select.dataset.active = 'false';
         //get the contents
-        let contents = select.find('.kerdx-select-contents');
-        let input = select.find('.kerdx-select-input');
-        let search = select.find('.kerdx-select-search');
-        let toggle = select.find('.kerdx-select-toggle');
+        let contents = select.find('.kedio-select-contents');
+        let input = select.find('.kedio-select-input');
+        let search = select.find('.kedio-select-search');
+        let toggle = select.find('.kedio-select-toggle');
         params.contents = params.contents || {};
         //populate the element contents
         if (Array.isArray(params.contents)) {//Turn contents to object if its array
@@ -621,7 +1100,7 @@ class Components extends Template {
         }
 
         for (let i in params.contents) {
-            let option = contents.makeElement({ element: 'span', attributes: { class: 'kerdx-select-option', value: i } });
+            let option = contents.makeElement({ element: 'span', attributes: { class: 'kedio-select-option', value: i } });
             option.innerHTML = params.contents[i];
             option.value = i;
         }
@@ -634,7 +1113,7 @@ class Components extends Template {
         //enable multiple values
         let single = (!this.isset(params.multiple) || params.multiple == false);
 
-        let options = select.findAll('.kerdx-select-option');
+        let options = select.findAll('.kedio-select-option');
 
         //search the contents
         search.onChanged(value => {
@@ -664,12 +1143,12 @@ class Components extends Template {
             }
 
             if (allowNavigate) {
-                active = contents.find('.kerdx-select-active-option');
+                active = contents.find('.kedio-select-active-option');
                 if (!this.isnull(active)) {
-                    active.classList.remove('kerdx-select-active-option');
+                    active.classList.remove('kedio-select-active-option');
                 }
 
-                options[scrollPosition].classList.add('kerdx-select-active-option');
+                options[scrollPosition].classList.add('kedio-select-active-option');
             }
         }
 
@@ -744,7 +1223,7 @@ class Components extends Template {
                 activate();
             }
 
-            if (event.target.classList.contains('kerdx-select-option')) {
+            if (event.target.classList.contains('kedio-select-option')) {
                 let text = params.contents[event.target.value];
                 if (params.multiple == 'single') {
                     if (input.value.includes(text)) {
@@ -1068,25 +1547,25 @@ class Components extends Template {
     displayData(data = {}, container) {
         let lineNumbers = [];
         let displayString = (value) => {
-            return this.createElement({ element: 'span', attributes: { class: 'kerdx-data-str' }, text: `"${value}"` });
+            return this.createElement({ element: 'span', attributes: { class: 'kedio-data-str' }, text: `"${value}"` });
         }
 
         let displayLiteral = (value) => {
-            return this.createElement({ element: 'span', attributes: { class: 'kerdx-data-lit' }, text: `${value}` });
+            return this.createElement({ element: 'span', attributes: { class: 'kedio-data-lit' }, text: `${value}` });
         }
 
         let displayPunctuation = (value) => {
-            return this.createElement({ element: 'span', attributes: { class: 'kerdx-data-pun' }, text: `${value}` });
+            return this.createElement({ element: 'span', attributes: { class: 'kedio-data-pun' }, text: `${value}` });
         }
 
         let displayNewLine = () => {
             increment++;
-            return this.createElement({ element: 'span', attributes: { class: 'kerdx-data-pln' } });
+            return this.createElement({ element: 'span', attributes: { class: 'kedio-data-pln' } });
         }
 
         let displayItem = (value, params) => {
             params = params || {};
-            let item = this.createElement({ element: 'span', attributes: { class: 'kerdx-data-item' } });
+            let item = this.createElement({ element: 'span', attributes: { class: 'kedio-data-item' } });
             lineNumbers.push(item);
             if (this.isset(params.key)) {
                 item.makeElement([
@@ -1104,7 +1583,7 @@ class Components extends Template {
         }
 
         let displayArray = (value) => {
-            let array = this.createElement({ element: 'span', attributes: { class: 'kerdx-data-block' } });
+            let array = this.createElement({ element: 'span', attributes: { class: 'kedio-data-block' } });
             lineNumbers.push(array);
 
             array.makeElement(displayPunctuation('['));
@@ -1121,7 +1600,7 @@ class Components extends Template {
         }
 
         let displayObject = (value) => {
-            let object = this.createElement({ element: 'span', attributes: { class: 'kerdx-data-block' } });
+            let object = this.createElement({ element: 'span', attributes: { class: 'kedio-data-block' } });
             lineNumbers.push(object);
 
             object.makeElement(displayPunctuation('{'));
@@ -1154,18 +1633,82 @@ class Components extends Template {
         }
         let lineHeight = '25px';
         let displayed = this.createElement({
-            element: 'pre', attributes: { class: 'kerdx-data-window' }, children: [
+            element: 'pre', attributes: { class: 'kedio-data-window' }, children: [
                 {
-                    element: 'span', attributes: { class: 'kerdx-data-line', style: { lineHeight } }
+                    element: 'span', attributes: { class: 'kedio-data-line', style: { lineHeight } }
                 },
                 {
-                    element: 'span', attributes: { class: 'kerdx-data-toggles' }
+                    element: 'span', attributes: { class: 'kedio-data-toggles' }
                 },
                 {
-                    element: 'code', attributes: { class: 'kerdx-data-code', style: { lineHeight } }, children: [
+                    element: 'code', attributes: { class: 'kedio-data-code', style: { lineHeight } }, children: [
                         chooseDisplay(data)
                     ]
+                },
+                {
+                    element: 'style', text: `.kedio-data-window {
+                    color: inherit;
+                    display: grid;
+                    grid-template-columns: max-content max-content 1fr;
+                    gap: 1em;
                 }
+                
+                .kedio-data-line {
+                    color: inherit;
+                    display: grid;
+                }
+                
+                .kedio-data-toggles {
+                    color: inherit;
+                    display: grid;
+                    position: relative;
+                }
+                
+                .kedio-data-line-number {
+                    color: inherit;
+                    /* display: flex; */
+                }
+                
+                .kedio-data-toggles .kedio-data-toggles-button {
+                    color: inherit;
+                    display: flex;
+                    align-items: center;
+                    font-size: .8em;
+                    cursor: pointer;
+                    position: absolute;
+                }
+                
+                .kedio-data-code {
+                    color: inherit;
+                    position: relative;
+                }
+                
+                .kedio-data-pun {
+                    color: inherit;
+                }
+                
+                .kedio-data-lit {
+                    color: inherit;
+                }
+                
+                .kedio-data-block {
+                    color: inherit;
+                }
+                
+                .kedio-data-str {
+                    color: inherit;
+                }
+                
+                .kedio-data-pln {
+                    display: block;
+                    width: 100%;
+                }
+                
+                .kedio-data-item {
+                    margin-left: 20px;
+                    display: block;
+                    color: inherit;
+                }`}
             ]
         });
 
@@ -1173,15 +1716,15 @@ class Components extends Template {
             container.append(displayed);
         }
 
-        let code = displayed.find('.kerdx-data-code'),
+        let code = displayed.find('.kedio-data-code'),
             numbers,
             toggleButtons,
             height = code.position().height,
-            lines = displayed.find('.kerdx-data-line'),
-            toggles = displayed.find('.kerdx-data-toggles'),
+            lines = displayed.find('.kedio-data-line'),
+            toggles = displayed.find('.kedio-data-toggles'),
             count = height / parseInt(lineHeight),
-            items = code.findAll('.kerdx-data-item'),
-            blocks = code.findAll('.kerdx-data-block');
+            items = code.findAll('.kedio-data-item'),
+            blocks = code.findAll('.kedio-data-block');
 
         let setRange = (block) => {
             let start = Math.floor((block.position().top - code.position().top) / parseInt(lineHeight)) + 1;
@@ -1192,7 +1735,7 @@ class Components extends Template {
         let setNumbers = () => {
             for (let i = 0; i < lineNumbers.length; i++) {
                 lines.makeElement([
-                    { element: 'a', html: `${i / 1 + 1}`, attributes: { class: 'kerdx-data-line-number' } }
+                    { element: 'a', html: `${i / 1 + 1}`, attributes: { class: 'kedio-data-line-number' } }
                 ]);
             }
         }
@@ -1200,7 +1743,7 @@ class Components extends Template {
         let setToggles = () => {
             for (let i = 0; i < blocks.length; i++) {
                 let top = blocks[i].position().top - code.position().top + 6 + 'px'
-                let toggle = toggles.makeElement({ element: 'i', attributes: { class: 'kerdx-data-toggles-button fas fa-arrow-down', style: { top } } });
+                let toggle = toggles.makeElement({ element: 'i', attributes: { class: 'kedio-data-toggles-button fas fa-arrow-down', style: { top } } });
 
                 toggle.block = blocks[i];
                 blocks[i].toggle = toggle;
@@ -1227,10 +1770,10 @@ class Components extends Template {
         let hideBlock = (block) => {
             let blockContent = block.children;
             for (let i = 0; i < blockContent.length; i++) {
-                if (blockContent[i].classList.contains('kerdx-data-item')) {
+                if (blockContent[i].classList.contains('kedio-data-item')) {
                     blockContent[i].css({ display: 'none' });
 
-                    blockContent[i].findAll('.kerdx-data-block').forEach(b => {
+                    blockContent[i].findAll('.kedio-data-block').forEach(b => {
                         if (!this.isset(b.toggle.controller)) {
                             b.toggle.controller = block;
                             b.toggle.css({ display: 'none' });
@@ -1252,10 +1795,10 @@ class Components extends Template {
         let showBlock = (block) => {
             let blockContent = block.children;
             for (let i = 0; i < blockContent.length; i++) {
-                if (blockContent[i].classList.contains('kerdx-data-item')) {
+                if (blockContent[i].classList.contains('kedio-data-item')) {
                     blockContent[i].cssRemove(['display']);
 
-                    blockContent[i].findAll('.kerdx-data-block').forEach(b => {
+                    blockContent[i].findAll('.kedio-data-block').forEach(b => {
                         if (b.toggle.controller == block) {
                             delete b.toggle.controller;
                             b.toggle.cssRemove(['display']);
@@ -1271,13 +1814,13 @@ class Components extends Template {
             setNumbers();
             setToggles();
 
-            numbers = lines.findAll('.kerdx-data-line-number');
-            toggleButtons = toggles.findAll('.kerdx-data-toggles-button');
+            numbers = lines.findAll('.kedio-data-line-number');
+            toggleButtons = toggles.findAll('.kedio-data-toggles-button');
 
             let blockContent, start, end;
             displayed.addEventListener('click', event => {
                 let target = event.target;
-                if (target.classList.contains('kerdx-data-toggles-button')) {//if toggled
+                if (target.classList.contains('kedio-data-toggles-button')) {//if toggled
                     if (!this.isset(target.block.range)) {
                         setRange(target.block);
                     }

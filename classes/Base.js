@@ -1,5 +1,5 @@
 const Components = require('./Components');
-const ColorPicker = require('./ColorPicker');
+const ColorPicker = require('../functions/ColorPicker');
 const ArrayLibrary = require('./../functions/ArrayLibrary');
 const ObjectsLibrary = require('./../functions/ObjectsLibrary');
 const Icons = require('./../Icons');
