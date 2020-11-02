@@ -86,7 +86,6 @@ function IndexedLibrary(name, version) {
                     db.createObjectStore(collection, { keyPath: '_id' });
                 }
             }
-            db.close();
             return db;
         });
     }
