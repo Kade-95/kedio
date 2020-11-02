@@ -72,7 +72,6 @@ function IndexedLibrary(name, version) {
     self.collectionExists = function (collection) {
         return self.open().then(db => {
             let exists = db.objectStoreNames.contains(collection);//check if db has this collection in objectstore
-            db.close();
             return exists;
         });
     }

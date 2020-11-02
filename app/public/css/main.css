@@ -1,66 +1,6 @@
 body {
-    background-color: #333;
     display: block;
     overflow: hidden;
     margin: 0;
     padding: 0;
-}
-
-.box {
-    width: 100%;
-    height: 500px;
-    top: 0;
-    position: absolute;
-    z-index: 0;
-}
-
-.box.a {
-    background-color: wheat;
-}
-
-.box.b {
-    background-color: red;
-}
-
-.box.c {
-    background-color: green;
-}
-
-.box.d {
-    background-color: blue;
-}
-
-.box.slide-in {
-    animation-name: slide-in;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease-in-out;
-}
-
-.box.slide-out {
-    animation-name: slide-out;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease-in-out;
-}
-
-@keyframes slide-in {
-    0% {
-        left: -100%;
-        z-index: 1;
-    }
-    100% {
-        left: 0;
-        z-index: 1;
-    }
-}
-
-@keyframes slide-out {
-    0% {
-        left: 0;
-        z-index: 1;
-    }
-    100%{
-        left: 100%;
-    }
 }

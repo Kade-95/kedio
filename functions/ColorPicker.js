@@ -577,12 +577,19 @@ function ColorPicker() {
     }
 
     self.addOpacity = (color = 'rgb(0, 0, 0)', opacity = 0.5) => {
+        let type = self.colorType(color);
+        if (type == 'hex') color = self.hexToRGB(color);
+        else if (type == 'hsl' || type == 'hsla') color = self.hslToRGB(color);
+
         let start = color.indexOf('(') + 1;
         let end = color.indexOf(')');
         let points = color.slice(start, end).split(',');
         points[3] = opacity;
 
         let changedColor = `rgba(${points.join(',')})`;
+
+        if (type == 'hex') changedColor = self.rgbToHex(changedColor);
+        else if (type == 'hsl' || type == 'hsla') changedColor = self.rgbToHSL(changedColor);
 
         return changedColor;
     }

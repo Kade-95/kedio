@@ -14,21 +14,6 @@ class Base extends Components {
         this.array = ArrayLibrary();
         this.object = ObjectsLibrary();
         this.icons = Icons;
-
-        if (this.Element) {
-            this.styles = [
-                'https://kade-95.github.io/kedio/css/table.css',
-                'https://kade-95.github.io/kedio/css/cell.css',
-                'https://kade-95.github.io/kedio/css/form.css',
-                'https://kade-95.github.io/kedio/css/picker.css',
-                'https://kade-95.github.io/kedio/css/select.css',
-                'https://kade-95.github.io/kedio/css/json.css',
-                'https://kade-95.github.io/kedio/css/popup.css'
-            ];
-            for (let style of this.styles) {
-                this.loadCss(style);
-            }
-        }
     }
 }
 
