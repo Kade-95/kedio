@@ -6,7 +6,7 @@ let db;
 
 class PersistentSessions {
     constructor(server = {}) {
-        db = MongoLibrary(server);
+        db = new MongoLibrary(server);
         this.collection = 'persistence';
         this.expires = new Date(new Date().getTime() + (1000 * 3600 * 24 * 30)).toUTCString();
     }

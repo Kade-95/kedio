@@ -21,7 +21,7 @@ class SessionsManager {
     }
 
     startSessions(params) {
-        db = MongoLibrary(params.server);
+        db = new MongoLibrary(params.server);
         persistence = new PersistentSessions(params.server);
         this.remember = params.remember || {};
 

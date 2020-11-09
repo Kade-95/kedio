@@ -1,7 +1,9 @@
 'use strict'
 const fs = require('fs');
-const { Server, Func } = require('../index');
+const { Server, Func, MongoLibrary} = require('../index');
 
+const serverDetails = { name: 'kedio', local: true, port: '27017' };
+global.db = new MongoLibrary(serverDetails);
 global.server = new Server();
 let func = new Func();
 
@@ -26,8 +28,6 @@ server.methods.post = (req, res, form) => {
     res.end(JSON.stringify({ word: 'Hello' }));
 }
 
-server.methods.delete = (req, res, form) => {
-    res.end(JSON.stringify({ word: 'Hello' }));
-}
+server.recordSession({ period: 24 * 60 * 60 * 1000, remember: ['user'], bankServer: serverDetails });
 
 server.makeStatic('app/public');
