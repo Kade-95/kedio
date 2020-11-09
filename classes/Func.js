@@ -214,13 +214,26 @@ class Func {
         return value;
     }
 
-    generateRandom(length = 5) {
-        var string = this.capitals + this.smalls + this.digits;
-        var alphanumeric = '';
-        for (var i = 0; i < length; i++) {
-            alphanumeric += string[Math.floor(Math.random() * string.length)];
+    generateRandom(length = 5, type = 'alphanum') {
+        let string;
+        if (type == 'number') {
+            string = this.digits;
         }
-        return alphanumeric;
+        else if (type == 'alpha') {
+            string = this.capitals + this.smalls;
+        }
+        else if (type == 'alphanum') {
+            string = this.capitals + this.smalls + this.digits;
+        }
+        else if (type == 'alphanumsym') {
+            string = this.capitals + this.smalls + this.digits + this.symbols;
+        }
+        
+        let random = '';
+        for (let i = 0; i < length; i++) {
+            random += string[Math.floor(Math.random() * string.length)];
+        }
+        return random;
     }
 
     generateRandomHex(length = 5) {
