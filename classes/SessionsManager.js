@@ -4,7 +4,7 @@ const ObjectsLibrary = require('./../functions/ObjectsLibrary');
 const Sessions = require('./Sessions');
 const PersistentSessions = require('./PersistentSessions');
 
-let objectLib = ObjectsLibrary();
+let objectLib = new ObjectsLibrary();
 let db;
 let func = new Func();
 let persistence;

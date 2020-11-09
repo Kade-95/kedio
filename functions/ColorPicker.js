@@ -1,7 +1,7 @@
 const Template = require('../classes/Template');
-const base = new Template(window);
 
-function ColorPicker() {
+function ColorPicker(window = {}) {
+    const base = new Template(window);
 
     this.colorIndicatorPosition = { x: 0, y: 0 };
     this.opacityIndicatorPosition = { x: 0, y: 0 };
