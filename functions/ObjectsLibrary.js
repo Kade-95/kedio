@@ -1,10 +1,9 @@
 const ArrayLibrary = require('./ArrayLibrary');
-let arrayLibrary = ArrayLibrary();
+let arrayLibrary = new ArrayLibrary();
 
 function ObjectsLibrary() {
-    let self = {};
 
-    self.extractFromJsonArray = (meta, source) => {//extract a blueprint of data from a JsonArray
+    this.extractFromJsonArray = (meta, source) => {//extract a blueprint of data from a JsonArray
         let keys = Object.keys(meta);//get the keys
         let values = Object.values(meta);//get the values
 
@@ -23,7 +22,7 @@ function ObjectsLibrary() {
         return eSource;
     }
 
-    self.find = (obj, callback) => {//higher order Object function for the first item in an Object that match
+    this.find = (obj, callback) => {//higher order Object function for the first item in an Object that match
         for (let i in obj) {
             if (callback(obj[i]) == true) {
                 return obj[i];
@@ -31,7 +30,7 @@ function ObjectsLibrary() {
         }
     }
 
-    self.findAll = (obj, callback) => {//higher order Object function for all items in an Object that match
+    this.findAll = (obj, callback) => {//higher order Object function for all items in an Object that match
         let values = {};
         for (let i in obj) {
             if (callback(obj[i]) == true)
@@ -41,7 +40,7 @@ function ObjectsLibrary() {
         return values;
     }
 
-    self.makeIterable = (obj) => {//make an object to use 'for in'
+    this.makeIterable = (obj) => {//make an object to use 'for in'
         obj[Symbol.iterator] = function* () {
             let properties = Object.keys(obj);
             for (let p of properties) {
@@ -51,17 +50,17 @@ function ObjectsLibrary() {
         return obj;
     }
 
-    self.max = (object) => {
-        object = self.sort(object, { value: true });
-        return self.getIndex(object);
+    this.max = (object) => {
+        object = this.sort(object, { value: true });
+        return this.getIndex(object);
     }
 
-    self.min = (object) => {//get the mininum in item in an Object
-        object = self.sort(object, { value: false });
-        return self.getIndex(object);
+    this.min = (object) => {//get the mininum in item in an Object
+        object = this.sort(object, { value: false });
+        return this.getIndex(object);
     }
 
-    self.onChanged = (obj, callback) => {//make an object listen to changes of it's items
+    this.onChanged = (obj, callback) => {//make an object listen to changes of it's items
         const handler = {
             get(target, property, receiver) {//when an Item is fetched
                 try {
@@ -83,7 +82,7 @@ function ObjectsLibrary() {
         return new Proxy(obj, handler);
     }
 
-    self.toArray = (object, named) => {//turn an Object into an Array
+    this.toArray = (object, named) => {//turn an Object into an Array
         var array = [];
         Object.keys(object).map((key) => {
             if (named == true) {//make it named
@@ -96,7 +95,7 @@ function ObjectsLibrary() {
         return array;
     }
 
-    self.valueOfObjectArray = (array, name) => {//get all the keys in a JsonArray of item name
+    this.valueOfObjectArray = (array, name) => {//get all the keys in a JsonArray of item name
         var newArray = [];
         for (let i in array) {
             newArray.push(array[i][name]);
@@ -104,7 +103,7 @@ function ObjectsLibrary() {
         return newArray;
     }
 
-    self.keysOfObjectArray = (array = []) => {//get all the keys in a JsonArray
+    this.keysOfObjectArray = (array = []) => {//get all the keys in a JsonArray
         var newArray = [];
         for (let i in array) {
             newArray = newArray.concat(Object.keys(array[i]));
@@ -112,7 +111,7 @@ function ObjectsLibrary() {
         return arrayLibrary.toSet(newArray);//remove duplicates
     }
 
-    self.objectOfObjectArray = (array = [], id, name) => {//strip [key value] from a JsonArray
+    this.objectOfObjectArray = (array = [], id, name) => {//strip [key value] from a JsonArray
         var object = {};
         for (let i in array) {
             object[array[i][id]] = array[i][name];
@@ -120,19 +119,19 @@ function ObjectsLibrary() {
         return object;
     }
 
-    self.copy = (from, to) => {//clone an Object
+    this.copy = (from, to) => {//clone an Object
         Object.keys(from).map(key => {
             to[key] = from[key];
         });
     }
 
-    self.forEach = (object, callback) => {//higher order function for Object literal
+    this.forEach = (object, callback) => {//higher order function for Object literal
         for (let key in object) {
             callback(object[key], key);
         }
     }
 
-    self.each = function (object, callback) {//higher order function for Object literal
+    this.each = function (object, callback) {//higher order function for Object literal
         let newObject = {};
         for (let key in object) {
             newObject[key] = callback(object[key], key);
@@ -140,7 +139,7 @@ function ObjectsLibrary() {
         return newObject;
     }
 
-    self.isSubObject = (data, sample) => {//check if an object is a sub-Object of another Object
+    this.isSubObject = (data, sample) => {//check if an object is a sub-Object of another Object
         let flag;
         for (let name in sample) {
             flag = JSON.stringify(sample[name]) == JSON.stringify(data[name]);//convert to string and compare
@@ -150,10 +149,10 @@ function ObjectsLibrary() {
         return flag;
     }
 
-    self.getSubObject = (data = [], sample = {}) => {//get matched items in Object
+    this.getSubObject = (data = [], sample = {}) => {//get matched items in Object
         let matched = [], flag = true;
         for (let i in data) {
-            flag = self.isSubObject(data[i], sample);//check each object
+            flag = this.isSubObject(data[i], sample);//check each object
             if (!flag) continue;
             matched.push(data[i]);
         }
@@ -161,7 +160,7 @@ function ObjectsLibrary() {
         return matched
     }
 
-    self.sort = (data = {}, params = { items: [], descend: false, key: false, value: false }) => {//sort an Object based on[key, value or items]
+    this.sort = (data = {}, params = { items: [], descend: false, key: false, value: false }) => {//sort an Object based on[key, value or items]
         params.item = params.item || '';
         params.descend = params.descend || false;
 
@@ -207,7 +206,7 @@ function ObjectsLibrary() {
         return nData;
     }
 
-    self.reverse = (data = {}) => {//reverse an Object
+    this.reverse = (data = {}) => {//reverse an Object
         let keys = Object.keys(data).reverse();
         let newObject = {};
         for (let i of keys) {
@@ -216,25 +215,25 @@ function ObjectsLibrary() {
         return newObject;
     }
 
-    self.getIndex = (data = {}) => {//get the first item in the Object
+    this.getIndex = (data = {}) => {//get the first item in the Object
         let key = Object.keys(data).shift();
         let value = data[key];
         return { key, value };
     }
 
-    self.getLast = (data = {}) => {//get the last item in the Object
+    this.getLast = (data = {}) => {//get the last item in the Object
         let key = Object.keys(data).pop();
         let value = data[key];
         return { key, value };
     }
 
-    self.getAt = (data = {}, index) => {//get the item of index in the Object
+    this.getAt = (data = {}, index) => {//get the item of index in the Object
         let key = Object.keys(data)[index];
         let value = data[key];
         return { key, value };
     }
 
-    self.keyOf = (data = {}, item) => {//get the first occurrance of an item in an Object
+    this.keyOf = (data = {}, item) => {//get the first occurrance of an item in an Object
         let index = -1;
         for (let i in data) {
             if (JSON.stringify(data[i]) == JSON.stringify(item)) {
@@ -245,7 +244,7 @@ function ObjectsLibrary() {
         return index;
     }
 
-    self.lastKeyOf = (data = {}, item) => {//get the last occurrance of an item in an object
+    this.lastKeyOf = (data = {}, item) => {//get the last occurrance of an item in an object
         let index = -1;
         for (let i in data) {
             if (JSON.stringify(data[i]) == JSON.stringify(item)) {
@@ -256,10 +255,9 @@ function ObjectsLibrary() {
         return index;
     }
 
-    self.includes = (data = {}, item) => {//check if an Object has an item
-        return self.keyOf(data, item) != -1;
+    this.includes = (data = {}, item) => {//check if an Object has an item
+        return this.keyOf(data, item) != -1;
     }
-    return self;
 }
 
 module.exports = ObjectsLibrary;

@@ -4,51 +4,50 @@ const ArrayLibrary = require('./ArrayLibrary');
 const MongoClient = require('mongodb').MongoClient;
 
 let func = new Func();
-let arrayLib = ArrayLibrary();
+let arrayLib = new ArrayLibrary();
 
 function MongoLibrary(details = { address: '', name: '', user: '', password: '', port: '', local: true }) {
-    let self = {};
-    self.mongoCloud = 'mongodb+srv://';
-    self.mongoLocal = 'mongodb://';
-    self.user = details.user || '';
-    self.password = details.password || '';
-    self.address = details.address;
-    self.name = details.name;
-    self.options = details.options;
-    self.port = details.port;
-    self.local = details.local || false;
+    this.mongoCloud = 'mongodb+srv://';
+    this.mongoLocal = 'mongodb://';
+    this.user = details.user || '';
+    this.password = details.password || '';
+    this.address = details.address;
+    this.name = details.name;
+    this.options = details.options;
+    this.port = details.port;
+    this.local = details.local || false;
 
-    self.getConnectionString = function () {
+    this.getConnectionString = function () {
         let connectionString;
-        if (self.local) {
-            connectionString = `${self.mongoLocal}localhost:${self.port}/${self.name}`;
+        if (this.local) {
+            connectionString = `${this.mongoLocal}localhost:${this.port}/${this.name}`;
         }
         else {
-            connectionString = `${self.mongoCloud}${self.user}:${self.password}@${self.address}/${self.name}`;
-            if (func.isString(self.options)) {
-                connectionString += `?${self.options}`;
+            connectionString = `${this.mongoCloud}${this.user}:${this.password}@${this.address}/${this.name}`;
+            if (func.isString(this.options)) {
+                connectionString += `?${this.options}`;
             }
         }
 
         return encodeURI(connectionString);
     }
 
-    self.connectionString = self.getConnectionString();
+    this.connectionString = this.getConnectionString();
 
-    self.setName = function (name) {
-        self.name = name;
-        self.connectionString = self.getConnectionString();
+    this.setName = function (name) {
+        this.name = name;
+        this.connectionString = this.getConnectionString();
     }
 
-    self.erase = function () {
-        return self.open({}, db => {
-            return db.db(self.name).dropDatabase();
+    this.erase = function () {
+        return this.open({}, db => {
+            return db.db(this.name).dropDatabase();
         });
     }
 
-    self.open = function (params = { url: '', options: { useNewUrlParser: true, useUnifiedTopology: true } }, callBack) {
+    this.open = function (params = { url: '', options: { useNewUrlParser: true, useUnifiedTopology: true } }, callBack) {
         // open database for operations
-        params.url = params.url || self.connectionString;
+        params.url = params.url || this.connectionString;
         params.options = params.options || { useNewUrlParser: true, useUnifiedTopology: true }
         if (func.isfunction(callBack)) {
             return new Promise((resolve, reject) => {
@@ -59,7 +58,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
                     else {
                         callBack(db)
                             .then((result) => {
-                                self.close(db);
+                                this.close(db);
                                 if (func.isnull(db)) {
                                     reject(`Error => MongoDb is not running on this system. Database is null`);
                                 }
@@ -84,14 +83,14 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         }
     }
 
-    self.close = function (db) {
+    this.close = function (db) {
         // close database 
         if (db) {
             db.close();
         }
     }
 
-    self.insert = function (params = { collection: '', query: {}, getInserted: false }) {
+    this.insert = function (params = { collection: '', query: {}, getInserted: false }) {
         // insert into database        
         let database = null;
         let value;
@@ -102,10 +101,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             if (!func.isObject(params.query)) {
                 reject('Invalid query');
             }
-            self.open()
+            this.open()
                 .then((db) => {
                     database = db;
-                    return db.db(self.name).collection(params.collection);
+                    return db.db(this.name).collection(params.collection);
                 })
                 .then((collection) => {
                     if (Array.isArray(params.query)) value = collection.insertMany(params.query);
@@ -126,7 +125,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.update = function (params = { collection: '', query: {}, options: {}, many: false }) {
+    this.update = function (params = { collection: '', query: {}, options: {}, many: false }) {
         // update database
         let database = null;
         return new Promise((resolve, reject) => {
@@ -143,10 +142,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
                 reject('Invalid options');
             }
 
-            self.open()
+            this.open()
                 .then((db) => {
                     database = db;
-                    return db.db(self.name).collection(params.collection);
+                    return db.db(this.name).collection(params.collection);
                 })
                 .then((collection) => {
                     if (params.many == true) return collection.updateMany(params.query, params.options);
@@ -163,15 +162,15 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.save = function (params = { collection: '', query: {}, check: {}, options: {}, many: false }) {
+    this.save = function (params = { collection: '', query: {}, check: {}, options: {}, many: false }) {
         // save or replace the content of a document
-        return self.exists({ collection: params.collection, query: params.check })
+        return this.exists({ collection: params.collection, query: params.check })
             .then(result => {
                 if (result) {
-                    return self.update({ collection: params.collection, query: params.check, options: { '$set': params.query } })
+                    return this.update({ collection: params.collection, query: params.check, options: { '$set': params.query } })
                 }
                 else {
-                    return self.insert(params);
+                    return this.insert(params);
                 }
             })
             .then(result => {
@@ -179,7 +178,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             });
     }
 
-    self.replace = function (params = { collection: '', query: {}, new: {} }) {
+    this.replace = function (params = { collection: '', query: {}, new: {} }) {
         // insert or update the content of document
         let database = null;
         return new Promise((resolve, reject) => {
@@ -195,9 +194,9 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             if (!func.isObject(params.new)) {
                 reject('Invalid new value');
             }
-            self.open().then((db) => {
+            this.open().then((db) => {
                 database = db;
-                return db.db(self.name).collection(params.collection);
+                return db.db(this.name).collection(params.collection);
             }).then((collection) => {
                 return collection.replaceOne(params.query, params.new);
             }).then((result) => {
@@ -210,7 +209,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.aggregate = function (params = { collection: '', query: {} }) {
+    this.aggregate = function (params = { collection: '', query: {} }) {
         // perform an aggregation on database
         let database = null;
         return new Promise((resolve, reject) => {
@@ -223,9 +222,9 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             if (!func.isObject(params.query)) {
                 reject('Invalid query');
             }
-            self.open().then((db) => {
+            this.open().then((db) => {
                 database = db;
-                return db.db(self.name).collection(params.collection);
+                return db.db(this.name).collection(params.collection);
             }).then((collection) => {
                 return collection.aggregate(params.query).toArray();
             }).then((result) => {
@@ -238,7 +237,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.join = function (params = { collection: '', query: { lookup: { from: '', localField: '', foreignField: '', as: '' } } }) {
+    this.join = function (params = { collection: '', query: { lookup: { from: '', localField: '', foreignField: '', as: '' } } }) {
         // join documents 
         let database = null;
         return new Promise((resolve, reject) => {
@@ -267,10 +266,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
                 reject('Invalid lookup as');
             }
 
-            self.open()
+            this.open()
                 .then((db) => {
                     database = db;
-                    return db.db(self.name).collection(params.collection);
+                    return db.db(this.name).collection(params.collection);
                 })
                 .then((collection) => {
                     let components = [],
@@ -294,10 +293,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.exists = function (params = { collection: '', query: {} }) {
+    this.exists = function (params = { collection: '', query: {} }) {
         // check if document exists
         return new Promise((resolve, reject) => {
-            self.find(params).then((res) => {
+            this.find(params).then((res) => {
                 if (!func.isnull(res)) resolve(true)
                 else resolve(false)
             }).catch(err => {
@@ -306,11 +305,11 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.ifNotExist = function (params = { collection: '', query: {}, check: [{}], action: '' }) {
+    this.ifNotExist = function (params = { collection: '', query: {}, check: [{}], action: '' }) {
         let found = false;
         return new Promise(async (resolve, reject) => {
             for (let q of params.check) {
-                found = await self.exists({ collection: params.collection, query: q });
+                found = await this.exists({ collection: params.collection, query: q });
                 if (found) {
                     resolve({ found: Object.keys(q) });
                     break;
@@ -318,7 +317,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             }
 
             if (!found) {
-                self[params.action](params).then(worked => {
+                this[params.action](params).then(worked => {
                     resolve(worked);
                 }).catch(error => {
                     reject(error)
@@ -327,12 +326,12 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.ifIExist = function (params = { collection: '', query: {}, check: [{}], action: '' }) {
+    this.ifIExist = function (params = { collection: '', query: {}, check: [{}], action: '' }) {
         let exists = false;
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < params.check.length; i++) {//loop through the check queries
                 let query = params.check[i].query;
-                let allFound = await self.find({ collection: params.collection, query, many: true });//find them all
+                let allFound = await this.find({ collection: params.collection, query, many: true });//find them all
                 if (allFound.length) {//if found
                     for (let found of allFound) {//loop through all the found items
                         for (let [key, value] of Object.entries(params.check[i].against)) {
@@ -347,7 +346,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             }
 
             if (!exists) {
-                self[params.action](params).then(worked => {
+                this[params.action](params).then(worked => {
                     resolve(worked);
                 }).catch(error => {
                     reject(error)
@@ -356,7 +355,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.find = function (params = { collection: '', query: {}, many: false, options: { projection: {} } }) {
+    this.find = function (params = { collection: '', query: {}, many: false, options: { projection: {} } }) {
         // find in database
         let database = null;
         let value;
@@ -376,10 +375,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             }
 
             if (!params.collection.includes('#')) {
-                self.open()
+                this.open()
                     .then((db) => {
                         database = db;
-                        return db.db(self.name).collection(params.collection);
+                        return db.db(this.name).collection(params.collection);
                     })
                     .then((collection) => {
                         if (func.isset(params.many)) {
@@ -407,10 +406,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             }
             else {
                 let [collection, name] = params.collection.split('#');
-                self.open()
+                this.open()
                     .then((db) => {
                         database = db;
-                        return db.db(self.name).collection(collection);
+                        return db.db(this.name).collection(collection);
                     })
                     .then((collection) => {
                         value = collection.findOne({ name });
@@ -487,7 +486,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.delete = function (params = { collection: '', query: {}, many: false }) {
+    this.delete = function (params = { collection: '', query: {}, many: false }) {
         // delete from database
         let database = null;
 
@@ -499,10 +498,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
                 reject('Invalid query');
             }
 
-            self.open()
+            this.open()
                 .then((db) => {
                     database = db;
-                    return db.db(self.name).collection(params.collection);
+                    return db.db(this.name).collection(params.collection);
                 })
                 .then((collection) => {
                     if (params.many == true) return collection.deleteMany(params.query);
@@ -519,13 +518,13 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.recycle = function (params = { collection: '', query: {}, many: false }) {
+    this.recycle = function (params = { collection: '', query: {}, many: false }) {
         //get the data to delete and insert it into recycle bin before deleting it
         return new Promise((resolve, reject) => {
-            self.find(params).then(result => {
+            this.find(params).then(result => {
                 let toInsert = { collection: 'recycle', query: { _id: result._id, collection: params.collection, query: result } };
-                self.insert(toInsert).then(result => {
-                    self.delete(params).then(result => {
+                this.insert(toInsert).then(result => {
+                    this.delete(params).then(result => {
                         resolve(result);
                     }).catch(err => {
                         resolve('Error Inserting data to recycle => ' + err);
@@ -539,12 +538,12 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.restore = function (params = { id: '' }) {
+    this.restore = function (params = { id: '' }) {
         //get the data from recycle bin restore it to collection then clear it from recycle bin
         return new Promise((resolve, reject) => {
-            self.find({ collection: 'recycle', query: { _id: new ObjectId(params.id) }, projection: { _id: 0 } }).then(result => {
-                self.insert(result).then(result => {
-                    self.delete({ collection: 'recycle', query: { _id: new ObjectId(params.id) } }).then(result => {
+            this.find({ collection: 'recycle', query: { _id: new ObjectId(params.id) }, projection: { _id: 0 } }).then(result => {
+                this.insert(result).then(result => {
+                    this.delete({ collection: 'recycle', query: { _id: new ObjectId(params.id) } }).then(result => {
                         resolve(result);
                     }).catch(err => {
                         reject('Error clearing data from recylce bin=> ' + err);
@@ -558,10 +557,10 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.dropCollection = function (collection) {
+    this.dropCollection = function (collection) {
         // delete database
-        return self.open({}, db => {
-            return db.db(self.name).dropCollection(collection)
+        return this.open({}, db => {
+            return db.db(this.name).dropCollection(collection)
                 .then(result => {
                     return result == true;
                 })
@@ -571,16 +570,16 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.createCollection = function (collection) {
+    this.createCollection = function (collection) {
         // create database
-        self.open({}, db => {
-            return db.db(self.name).createCollection(collection);
+        this.open({}, db => {
+            return db.db(this.name).createCollection(collection);
         });
     }
 
-    self.getCollections = function () {
+    this.getCollections = function () {
         return new Promise((resolve, reject) => {
-            self.open()
+            this.open()
                 .then(db => {
                     return db.db().listCollections().toArray();
                 })
@@ -590,7 +589,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
         });
     }
 
-    self.modify = function (params = { collection: '', query: {}, update: {} }) {
+    this.modify = function (params = { collection: '', query: {}, update: {} }) {
         // update database
         let database = null;
         return new Promise((resolve, reject) => {
@@ -611,7 +610,7 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
             for (let name in params.update) {
                 projection[name] = 1;
             };
-            self.find({ collection: params.collection, query: params.query, projection })
+            this.find({ collection: params.collection, query: params.query, projection })
                 .then(data => {
                     for (let name in data) {
                         if (params.update[name].action.toLowerCase() == 'set') {
@@ -641,28 +640,26 @@ function MongoLibrary(details = { address: '', name: '', user: '', password: '',
                         }
                     }
 
-                    self.update({ collection: params.collection, query: params.query, options: { '$set': update } }).then(result => {
+                    this.update({ collection: params.collection, query: params.query, options: { '$set': update } }).then(result => {
                         resolve(data);
                     })
                 })
         });
     }
 
-    self.work = function (params = { collection: '' }) {
+    this.work = function (params = { collection: '' }) {
         return new Promise((resulve, reject) => {
-            self.open().then(db => {
-                return db.db(self.name).collection(params.collection);
+            this.open().then(db => {
+                return db.db(this.name).collection(params.collection);
             }).then(collection => {
                 params.callBack(collection);
             });
         });
     }
 
-    self.say = function () {
-        console.log(self.name);
+    this.say = function () {
+        console.log(this.name);
     }
-
-    return self;
 }
 
 module.exports = MongoLibrary;

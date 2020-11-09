@@ -3,7 +3,7 @@ const Matrix = require('./Matrix');
 const ArrayLibrary = require('./../functions/ArrayLibrary');
 
 let func = new Func();
-let arrayLibrary = ArrayLibrary();
+let arrayLibrary = new ArrayLibrary();
 
 class NeuralNetwork {
     constructor(params) {

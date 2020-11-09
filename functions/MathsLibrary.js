@@ -1,10 +1,9 @@
 const ArrayLibrary = require('./ArrayLibrary');
-let arrayLibrary = ArrayLibrary();
+let arrayLibrary = new ArrayLibrary();
 
 function MathsLibrary() {
-    let self = {};
 
-    self.placeUnit = (num, value, count) => {
+    this.placeUnit = (num, value, count) => {
         num = Math.floor(num).toString();
         value = value || num[0];
         count = count || 0;
@@ -24,7 +23,7 @@ function MathsLibrary() {
         return pos;
     }
 
-    self.round = (params) => {
+    this.round = (params) => {
         params.dir = params.dir || 'round';
         params.to = params.to || 1;
 
@@ -32,8 +31,8 @@ function MathsLibrary() {
         return value;
     }
 
-    self.variance = (data) => {
-        let mean = self.mean(data);
+    this.variance = (data) => {
+        let mean = this.mean(data);
         let variance = 0;
         for (let i = 0; i < data.length; i++) {
             variance += (data[i] - mean) ** 2;
@@ -41,13 +40,13 @@ function MathsLibrary() {
         return variance / data.length;
     }
 
-    self.standardDeviation = (data) => {
-        let variance = self.variance(data);
+    this.standardDeviation = (data) => {
+        let variance = this.variance(data);
         let std = Math.sqrt(variance);
         return std;
     }
 
-    self.range = (data) => {
+    this.range = (data) => {
         let min = Math.min(...data);
         let max = Math.max(...data);
 
@@ -55,14 +54,14 @@ function MathsLibrary() {
         return range;
     }
 
-    self.mean = (data) => {
-        let sum = self.sum(data);
+    this.mean = (data) => {
+        let sum = this.sum(data);
 
         let mean = sum / data.length;
         return mean;
     }
 
-    self.median = (data) => {
+    this.median = (data) => {
         let length = data.length;
         let median;
         if (length % 2 == 0) {
@@ -74,7 +73,7 @@ function MathsLibrary() {
         return median;
     }
 
-    self.mode = (data) => {
+    this.mode = (data) => {
         let record = {};
         for (let i = 0; i < data.length; i++) {
             if (record[data[i]] != undefined) record[data[i]]++;
@@ -93,7 +92,7 @@ function MathsLibrary() {
         return mode;
     }
 
-    self.normalizeData = (data) => {
+    this.normalizeData = (data) => {
         data.sort((a, b) => { return a - b });
         var max = data[data.length - 1];
         var min = data[0];
@@ -104,7 +103,7 @@ function MathsLibrary() {
         return normalized;
     }
 
-    self.minimuimSwaps = (arr, order) => {
+    this.minimuimSwaps = (arr, order) => {
         var swap = 0;
         var checked = [];
         var counter = 0;
@@ -132,7 +131,7 @@ function MathsLibrary() {
         return swap;
     }
 
-    self.primeFactorize = (number) => {
+    this.primeFactorize = (number) => {
         if (typeof number != "number") return [];
         number = Math.abs(parseInt(number));
         if (number == 1 || number == 0) return []//1 and 0 has no primes
@@ -151,14 +150,14 @@ function MathsLibrary() {
         return factors;
     }
 
-    self.lcf = (numbers) => {
+    this.lcf = (numbers) => {
         if (!Array.isArray(numbers)) return [];
         var factors = [];
         var commonFactors = [];
         var value = 1;
         for (var number of numbers) {
             if (typeof number != "number") return [];
-            factors.push(self.primeFactorize(number))
+            factors.push(this.primeFactorize(number))
         }
 
         main:
@@ -174,23 +173,23 @@ function MathsLibrary() {
         return value;
     }
 
-    self.stripInteger = (number) => {
+    this.stripInteger = (number) => {
         number = number.toString();
         number = (number.indexOf('.') == -1) ? number : number.slice(0, number.indexOf('.'));
         return number;
     }
 
-    self.stripFraction = (number) => {
+    this.stripFraction = (number) => {
         number = number.toString();
         number = (number.indexOf('.') == -1) ? '0' : number.slice(number.indexOf('.') + 1);
         return number;
     }
 
-    self.changeBase = (number, from, to) => {
+    this.changeBase = (number, from, to) => {
         return parseFloat(number, from).toString(to);
     }
 
-    self.max = (array) => {
+    this.max = (array) => {
         var max = array[0];
         arrayLibrary.each(array, value => {
             if (max < value) max = value;
@@ -198,7 +197,7 @@ function MathsLibrary() {
         return max;
     }
 
-    self.min = (array) => {
+    this.min = (array) => {
         var max = array[0];
         arrayLibrary.each(array, value => {
             if (max > value) max = value;
@@ -206,7 +205,7 @@ function MathsLibrary() {
         return max;
     }
 
-    self.sum = (array) => {
+    this.sum = (array) => {
         //for finding the sum of one layer array
         let sum = 0;
         for (let i = 0; i < array.length; i++) {
@@ -220,7 +219,7 @@ function MathsLibrary() {
         return sum;
     }
 
-    self.product = (array) => {
+    this.product = (array) => {
         //for finding the sum of one layer array
         let product = 1;
         for (let i = 0; i < array.length; i++) {
@@ -234,7 +233,7 @@ function MathsLibrary() {
         return product;
     }
 
-    self.add = (...arrays) => {
+    this.add = (...arrays) => {
         let newArray = [];
         arrays[0].forEach((value, position) => {
             arrays.forEach((array, location) => {
@@ -248,7 +247,7 @@ function MathsLibrary() {
         return newArray;
     }
 
-    self.sub = (...arrays) => {
+    this.sub = (...arrays) => {
         let newArray = [];
         arrays[0].forEach((value, position) => {
             arrays.forEach((array, location) => {
@@ -262,7 +261,7 @@ function MathsLibrary() {
         return newArray;
     }
 
-    self.mul = (...arrays) => {
+    this.mul = (...arrays) => {
         let newArray = [];
         arrays[0].forEach((value, position) => {
             arrays.forEach((array, location) => {
@@ -276,7 +275,7 @@ function MathsLibrary() {
         return newArray;
     }
 
-    self.divide = (...arrays) => {
+    this.divide = (...arrays) => {
         let newArray = [];
         arrays[0].forEach((value, position) => {
             arrays.forEach((array, location) => {
@@ -290,14 +289,12 @@ function MathsLibrary() {
         return newArray;
     }
 
-    self.abs = (array) => {
+    this.abs = (array) => {
         return arrayLibrary.each(array, value => {
             value = isNaN(value) == true ? 0 : value;
             return Math.abs(value);
         });
     }
-
-    return self;
 }
 
 module.exports = MathsLibrary;

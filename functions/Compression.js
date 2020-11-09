@@ -3,14 +3,12 @@ const ObjectsLibrary = require('./ObjectsLibrary');
 const ArrayLibrary = require('./ArrayLibrary');
 const Tree = require('./../classes/Tree');
 
-let mathLibrary = MathsLibrary();
-let objectLibrary = ObjectsLibrary();
-let arrayLibrary = ArrayLibrary();
+let mathLibrary = new MathsLibrary();
+let objectLibrary = new ObjectsLibrary();
+let arrayLibrary = new ArrayLibrary();
 
 function Compression() {
-    const self = {};
-
-    self.getFrequency = (data = []) => {//get the occurrance of symbols in a list
+    this.getFrequency = (data = []) => {//get the occurrance of symbols in a list
         const frequency = {};
         for (let d in data) {
             if (frequency[data[d]] == undefined) {
@@ -24,8 +22,8 @@ function Compression() {
         return frequency;
     }
 
-    self.getProbabilities = (data = []) => {//get the probabilities of all symbols in a list
-        let probs = self.getFrequency(data);
+    this.getProbabilities = (data = []) => {//get the probabilities of all symbols in a list
+        let probs = this.getFrequency(data);
 
         for (let i in probs) {
             probs[i] = probs[i] / data.length;
@@ -33,7 +31,7 @@ function Compression() {
         return probs;
     }
 
-    self.entropy = (data = []) => {//this shows the shortest possible average length of a lossless compression
+    this.entropy = (data = []) => {//this shows the shortest possible average length of a lossless compression
         let sum = 0;
         let dataType = arrayLibrary.dataType(data);//get the datatype of the list
         let probabilities;
@@ -41,7 +39,7 @@ function Compression() {
             probabilities = data;
         }
         else if (dataType == 'string') {//get the symbols probabilities
-            probabilities = Object.values(self.getProbabilities(data));
+            probabilities = Object.values(this.getProbabilities(data));
         }
 
         //Sum of (-p log base 2 of p)
@@ -52,7 +50,7 @@ function Compression() {
         return sum;
     }
 
-    self.isUDC = (data = []) => {//check if a list is uniquely decodable code
+    this.isUDC = (data = []) => {//check if a list is uniquely decodable code
         let flag = true, noPrefix, keepRunning = true;
 
         let addSurfix = (str) => {
@@ -103,8 +101,8 @@ function Compression() {
         return flag;
     }
 
-    self.sfAlgorithm = (data = []) => {
-        let frequency = self.getFrequency(data);//get the frequecies of the symbols
+    this.sfAlgorithm = (data = []) => {
+        let frequency = this.getFrequency(data);//get the frequecies of the symbols
         let sorted = objectLibrary.sort(frequency, { value: true });//sort the symbols based on frequecy of occurrance
         let codeWord = '';
 
@@ -167,8 +165,8 @@ function Compression() {
         return { codeWord, table, data, tree };
     }
 
-    self.huffmanCoding = (data = []) => {
-        let frequency = self.getProbabilities(data);//get the frequecies of the symbols
+    this.huffmanCoding = (data = []) => {
+        let frequency = this.getProbabilities(data);//get the frequecies of the symbols
         let sorted = objectLibrary.sort(frequency, { value: true });//sort the symbols based on frequecy of occurrance
 
         let tree = [];
@@ -238,7 +236,7 @@ function Compression() {
         return { table, data, avgLength, tree };
     }
 
-    self.encodeHuffman = (data, dictionary = []) => {
+    this.encodeHuffman = (data, dictionary = []) => {
         let dictionaryLength = dictionary.length;
         let codeWord = '', nytCode, code;
 
@@ -326,7 +324,7 @@ function Compression() {
         return { codeWord, tree, data };
     }
 
-    self.decodeHuffman = (codeWord, dictionary = []) => {
+    this.decodeHuffman = (codeWord, dictionary = []) => {
         let dictionaryLength = dictionary.length;
         let data = '', nytCode, code, path = [];
         let tree = new Tree();
@@ -425,7 +423,7 @@ function Compression() {
         return { data, tree, codeWord };
     }
 
-    self.golomb = (n, m) => {
+    this.golomb = (n, m) => {
         let q = Math.floor(n / m);//step 1
         let unary = Array(q).fill(1).join('') + '0';//unary of q
 
@@ -449,7 +447,7 @@ function Compression() {
         return code;
     }
 
-    self.encodeArithmetic = (data, probabilities) => {
+    this.encodeArithmetic = (data, probabilities) => {
         let getX = (n) => {//f(x(n))= sum of x(1) .... x(n)
             let value = 0;
             for (let i in probabilities) {
@@ -482,7 +480,7 @@ function Compression() {
         return (n.l + n.u) / 2;
     }
 
-    self.decodeArithmetic = (tag = 0, probabilities) => {
+    this.decodeArithmetic = (tag = 0, probabilities) => {
         let data = '';
         let getX = (n) => {//f(x(n))= sum of x(1) .... x(n)
             let value = 0;
@@ -533,7 +531,7 @@ function Compression() {
         return data;
     }
 
-    self.encodeDiagram = (data = '', dictionary = {}) => {//daigram coding
+    this.encodeDiagram = (data = '', dictionary = {}) => {//daigram coding
         let i;
         let codeWord = '';
         let encode = () => {
@@ -560,7 +558,7 @@ function Compression() {
         return codeWord;
     }
 
-    self.encodeLZ1 = (data = '', params = { windowSize: 0, searchSize: 0, lookAheadSize: 0 }) => {//LZ7//LZ1//Sliding window
+    this.encodeLZ1 = (data = '', params = { windowSize: 0, searchSize: 0, lookAheadSize: 0 }) => {//LZ7//LZ1//Sliding window
         if (params.windowSize == undefined) params.windowSize = params.searchSize + params.lookAheadSize;//init the window, search and lookahead sizes
         if (params.searchSize == undefined) params.searchSize = params.windowSize - params.lookAheadSize;
         if (params.lookAheadSize == undefined) params.lookAheadSize = params.windowSize - params.searchSize;
@@ -619,7 +617,7 @@ function Compression() {
         return list;
     }
 
-    self.decodeLZ1 = (triplets = [{ o: 0, l: 0, c: '' }], params = { windowSize: 0, searchSize: 0, lookAheadSize: 0 }) => {
+    this.decodeLZ1 = (triplets = [{ o: 0, l: 0, c: '' }], params = { windowSize: 0, searchSize: 0, lookAheadSize: 0 }) => {
         let word = '';
 
         if (params.windowSize == undefined) params.windowSize = params.searchSize + params.lookAheadSize;//init the window, search and lookahead sizes
@@ -636,7 +634,7 @@ function Compression() {
         return word;
     }
 
-    self.encodeLZ2 = (data = '') => {//LZ8//LZ2
+    this.encodeLZ2 = (data = '') => {//LZ8//LZ2
         let duplets = [];//init duplet list
         let entries = [];//init dictionary
         let i, lastIndex;
@@ -674,7 +672,7 @@ function Compression() {
         return duplets;
     }
 
-    self.decodeLZ2 = (duplets = [{ i: 0, c: '' }]) => {
+    this.decodeLZ2 = (duplets = [{ i: 0, c: '' }]) => {
         let entries = [];//init dictionary
         let c;
 
@@ -690,7 +688,7 @@ function Compression() {
         return entries.join('');
     }
 
-    self.encodeLZW = (data = '', initDictionary = []) => {
+    this.encodeLZW = (data = '', initDictionary = []) => {
         let codeWord = [], lastIndex, i;
         let entries = Array.from(initDictionary);
 
@@ -730,7 +728,7 @@ function Compression() {
         return codeWord;
     }
 
-    self.decodeLZW = (singleton = [], initDictionary = []) => {
+    this.decodeLZW = (singleton = [], initDictionary = []) => {
         let word = '', codeWord = [], state, count = 0, rebuild = false, buildWith = '', i, start = 0;
         let entries = Array.from(initDictionary);
 
@@ -801,8 +799,6 @@ function Compression() {
 
         return word;
     }
-
-    return self;
 }
 
 module.exports = Compression;

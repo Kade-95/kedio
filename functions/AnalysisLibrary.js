@@ -1,13 +1,11 @@
 const MathsLibrary = require('./MathsLibrary');
 const ObjectsLibrary = require('./ObjectsLibrary');
 
-let mathLibrary = MathsLibrary();
-let objectLibrary = ObjectsLibrary();
+let mathLibrary = new MathsLibrary();
+let objectLibrary = new ObjectsLibrary();
 
 function AnalysisLibrary() {
-    let self = {};
-
-    self.entropy = (data) => {
+    this.entropy = (data) => {
         let entropy = 0;//initialize entropy
         let values = Object.values(data);//get the values of the object variable
         let sum = mathLibrary.sum(values);//get the sum of the Values
@@ -17,7 +15,7 @@ function AnalysisLibrary() {
         return entropy;
     }
 
-    self.informationGain = (targetNode, variableData) => {
+    this.informationGain = (targetNode, variableData) => {
         let arrangeData = (list) => {//arrange the list into an object of counts
             let data = {};
             for (let item of list) {
@@ -30,7 +28,7 @@ function AnalysisLibrary() {
 
         let targetData = arrangeData(targetNode);
 
-        let targetEntropy = self.entropy(targetData);//get the entropy of the target node
+        let targetEntropy = this.entropy(targetData);//get the entropy of the target node
         let sumOfInformation = 0;//initialize sum of information gain
 
         let variableValues = Object.values(variableData);//get the values of this variable
@@ -42,24 +40,24 @@ function AnalysisLibrary() {
         }
 
         for (let v of variableValues) {//get the entropy of each and multiply by the probability
-            sumOfInformation += (mathLibrary.sum(Object.values(v)) / variableLength) * self.entropy(v);
+            sumOfInformation += (mathLibrary.sum(Object.values(v)) / variableLength) * this.entropy(v);
         }
 
         let informationGain = targetEntropy - sumOfInformation;
         return informationGain;
     }
 
-    self.highestInformationGainNode = (data, nodes) => {
+    this.highestInformationGainNode = (data, nodes) => {
         let gainedInformation = {};
 
         for (let i in nodes) {
-            gainedInformation[i] = self.informationGain(data, nodes[i]);
+            gainedInformation[i] = this.informationGain(data, nodes[i]);
         }
 
         return objectLibrary.max(gainedInformation);
     }
 
-    self.quartileRange = (data) => {
+    this.quartileRange = (data) => {
 
         let middle = (_dt) => {//get the middle position of a list of numbers
             let middle;
@@ -103,7 +101,7 @@ function AnalysisLibrary() {
         return q3 - q1;//find the range
     }
 
-    self.normalizeData = (data) => {
+    this.normalizeData = (data) => {
         data.sort((a, b) => { return a - b });
         var max = data[data.length - 1];
         var min = data[0];
@@ -113,8 +111,6 @@ function AnalysisLibrary() {
         }
         return normalized;
     }
-
-    return self;
 }
 
 module.exports = AnalysisLibrary;

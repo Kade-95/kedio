@@ -1,7 +1,5 @@
 function RequestsLibrary() {
-    let self = {};
-
-    self.extract = (arr = '', start, end) => {
+    this.extract = (arr = '', start, end) => {
         var userIndex = typeof start === 'number',
             i,
             j;
@@ -24,10 +22,10 @@ function RequestsLibrary() {
         }
     }
 
-    self.parseForm = (boundary, data) => {
+    this.parseForm = (boundary, data) => {
         var form = {},
             delimeter = Buffer.from('\r\n--' + boundary),
-            body = self.extract(data, '--' + boundary + '\r\n'),
+            body = this.extract(data, '--' + boundary + '\r\n'),
             CR = Buffer.from('\r\n\r\n'),
             i = 0,
             head,
@@ -38,11 +36,11 @@ function RequestsLibrary() {
             type;
         if (body) {
             while (i !== -1) {
-                [head, i] = self.extract(body, i, CR);
-                name = self.extract(head, '; name="', '"').toString();
-                filename = self.extract(head, '; filename="', '"').toString();
-                type = self.extract(head.toString(), 'Content-Type: ');
-                [value, i] = self.extract(body, i, delimeter);
+                [head, i] = this.extract(body, i, CR);
+                name = this.extract(head, '; name="', '"').toString();
+                filename = this.extract(head, '; filename="', '"').toString();
+                type = this.extract(head.toString(), 'Content-Type: ');
+                [value, i] = this.extract(body, i, delimeter);
                 if (name) {
                     obj = { filename: filename, type: type, value: value };
                     if (form.hasOwnProperty(name)) {//avoid duplicates
@@ -66,7 +64,7 @@ function RequestsLibrary() {
         return form;
     }
 
-    self.getIp = (req) => {
+    this.getIp = (req) => {
         var ip = req.headers['x-forworded-for'];
         if (ip) {
             ip = ip.split(',')[0];
@@ -75,8 +73,6 @@ function RequestsLibrary() {
         }
         return ip;
     }
-
-    return self;
 }
 
 module.exports = RequestsLibrary;

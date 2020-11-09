@@ -1,16 +1,14 @@
 const Template = require('../classes/Template');
+const base = new Template(window);
 
 function ColorPicker() {
 
-    let self = {};
-    self.base = new Template(window);
-    self.base.elementLi
-    self.colorIndicatorPosition = { x: 0, y: 0 };
-    self.opacityIndicatorPosition = { x: 0, y: 0 };
-    self.convertTo = 'RGB';
+    this.colorIndicatorPosition = { x: 0, y: 0 };
+    this.opacityIndicatorPosition = { x: 0, y: 0 };
+    this.convertTo = 'RGB';
 
-    self.init = (params = {}) => {
-        self.picker = self.base.createElement({
+    this.init = (params = {}) => {
+        this.picker = base.createElement({
             element: 'div', attributes: { class: 'color-picker' }, children: [
                 {
                     element: 'span', attributes: { id: 'color-picker-setters' }, children: [
@@ -121,39 +119,39 @@ function ColorPicker() {
             ]
         });
 
-        self.colorWindow = self.picker.find('#color-picker-colors-window');
-        self.opacityWindow = self.picker.find('#color-picker-opacities-window');
-        self.colorCanvas = self.picker.find('#color-picker-colors');
-        self.opacityCanvas = self.picker.find('#color-picker-opacities');
-        self.colorMarker = self.picker.find('#color-picker-color-indicator');
-        self.opacityMarker = self.picker.find('#color-picker-opacity-indicator');
-        self.width = params.width ? params.width : 300;
-        self.height = params.height ? params.height : 300;
-        self.pickedColor = params.color ? params.color : 'rgb(0, 0, 0)';
-        self.colorWindow.css({ height: self.height + 'px' });
-        self.colorCanvas.width = self.width;
-        self.colorCanvas.height = self.height;
-        self.opacityWindow.css({ height: self.height + 'px' });
-        self.opacityCanvas.height = self.height;
-        self.opacityCanvas.width = 20;
+        this.colorWindow = this.picker.find('#color-picker-colors-window');
+        this.opacityWindow = this.picker.find('#color-picker-opacities-window');
+        this.colorCanvas = this.picker.find('#color-picker-colors');
+        this.opacityCanvas = this.picker.find('#color-picker-opacities');
+        this.colorMarker = this.picker.find('#color-picker-color-indicator');
+        this.opacityMarker = this.picker.find('#color-picker-opacity-indicator');
+        this.width = params.width ? params.width : 300;
+        this.height = params.height ? params.height : 300;
+        this.pickedColor = params.color ? params.color : 'rgb(0, 0, 0)';
+        this.colorWindow.css({ height: this.height + 'px' });
+        this.colorCanvas.width = this.width;
+        this.colorCanvas.height = this.height;
+        this.opacityWindow.css({ height: this.height + 'px' });
+        this.opacityCanvas.height = this.height;
+        this.opacityCanvas.width = 20;
 
         //the context
-        self.colorContext = self.colorCanvas.getContext('2d');
-        self.opacityContext = self.opacityCanvas.getContext('2d');
+        this.colorContext = this.colorCanvas.getContext('2d');
+        this.opacityContext = this.opacityCanvas.getContext('2d');
 
-        self.picker.find('#picked-color-value').innerText = self.pickedColor;
-        self.picker.find('#picked-color-setter').onChanged(value => {
-            self.convertTo = value;
-            self.reply();
+        this.picker.find('#picked-color-value').innerText = this.pickedColor;
+        this.picker.find('#picked-color-setter').onChanged(value => {
+            this.convertTo = value;
+            this.reply();
         });
 
-        self.listen();
+        this.listen();
 
-        return self.picker;
+        return this.picker;
     }
 
-    self.calibrateColor = () => {
-        let colorGradient = self.colorContext.createLinearGradient(0, 0, self.width, 0);
+    this.calibrateColor = () => {
+        let colorGradient = this.colorContext.createLinearGradient(0, 0, this.width, 0);
 
         //color stops
         colorGradient.addColorStop(0, "rgb(255, 0, 0)");
@@ -164,207 +162,207 @@ function ColorPicker() {
         colorGradient.addColorStop(0.87, "rgb(255, 255, 0)");
         colorGradient.addColorStop(1, "rgb(255, 0, 0)");
 
-        self.colorContext.fillStyle = colorGradient;
-        self.colorContext.fillRect(0, 0, self.width, self.height);
+        this.colorContext.fillStyle = colorGradient;
+        this.colorContext.fillRect(0, 0, this.width, this.height);
 
         //add black and white stops
-        colorGradient = self.colorContext.createLinearGradient(0, 0, 0, self.height);
+        colorGradient = this.colorContext.createLinearGradient(0, 0, 0, this.height);
         colorGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
         colorGradient.addColorStop(0.5, "rgba(255, 255, 255, 0)");
         colorGradient.addColorStop(0.5, "rgba(0, 0, 0, 0)");
         colorGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
 
-        self.colorContext.fillStyle = colorGradient;
-        self.colorContext.fillRect(0, 0, self.width, self.height);
+        this.colorContext.fillStyle = colorGradient;
+        this.colorContext.fillRect(0, 0, this.width, this.height);
     }
 
-    self.calibrateOpacity = () => {
+    this.calibrateOpacity = () => {
         let rgba;
 
-        self.opacityContext.clearRect(0, 0, self.opacityCanvas.width, self.height);
-        let opacityGradient = self.opacityContext.createLinearGradient(0, 0, 0, self.opacityCanvas.height);
+        this.opacityContext.clearRect(0, 0, this.opacityCanvas.width, this.height);
+        let opacityGradient = this.opacityContext.createLinearGradient(0, 0, 0, this.opacityCanvas.height);
 
         for (let i = 100; i >= 0; i--) {
-            rgba = self.addOpacity(self.pickedColor, i / 100);
+            rgba = this.addOpacity(this.pickedColor, i / 100);
             opacityGradient.addColorStop(i / 100, rgba);
         }
 
-        self.opacityContext.fillStyle = opacityGradient;
-        self.opacityContext.clearRect(0, 0, self.opacityCanvas.width, self.opacityCanvas.height);
-        self.opacityContext.fillRect(0, 0, self.opacityCanvas.width, self.opacityCanvas.height);
+        this.opacityContext.fillStyle = opacityGradient;
+        this.opacityContext.clearRect(0, 0, this.opacityCanvas.width, this.opacityCanvas.height);
+        this.opacityContext.fillRect(0, 0, this.opacityCanvas.width, this.opacityCanvas.height);
     }
 
-    self.listen = () => {
+    this.listen = () => {
         let isColorMouseDown = false;
         let isOpacityMouseDown = false;
 
-        self.picker.notBubbledEvent('click', event => {
-            if (self.added && !isColorMouseDown && !isOpacityMouseDown) {
-                self.dispose();
+        this.picker.notBubbledEvent('click', event => {
+            if (this.added && !isColorMouseDown && !isOpacityMouseDown) {
+                this.dispose();
             }
         });
 
         const colorMouseDown = (event) => {
-            let currentX = event.clientX - self.colorCanvas.getBoundingClientRect().left;
-            let currentY = event.clientY - self.colorCanvas.getBoundingClientRect().top;
+            let currentX = event.clientX - this.colorCanvas.getBoundingClientRect().left;
+            let currentY = event.clientY - this.colorCanvas.getBoundingClientRect().top;
 
             //is mouse in color picker
-            isColorMouseDown = (currentX > 0 && currentX < self.colorCanvas.getBoundingClientRect().width && currentY > 0 && currentY < self.colorCanvas.getBoundingClientRect().height);
+            isColorMouseDown = (currentX > 0 && currentX < this.colorCanvas.getBoundingClientRect().width && currentY > 0 && currentY < this.colorCanvas.getBoundingClientRect().height);
         };
 
         const colorMouseMove = (event) => {
             if (isColorMouseDown) {
-                self.colorIndicatorPosition.x = event.clientX - self.colorCanvas.getBoundingClientRect().left;
-                self.colorIndicatorPosition.y = event.clientY - self.colorCanvas.getBoundingClientRect().top;
-                self.colorMarker.css({ top: self.colorIndicatorPosition.y + 'px', left: self.colorIndicatorPosition.x + 'px' });
+                this.colorIndicatorPosition.x = event.clientX - this.colorCanvas.getBoundingClientRect().left;
+                this.colorIndicatorPosition.y = event.clientY - this.colorCanvas.getBoundingClientRect().top;
+                this.colorMarker.css({ top: this.colorIndicatorPosition.y + 'px', left: this.colorIndicatorPosition.x + 'px' });
 
-                let picked = self.getPickedColor();
-                self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b})`;
-                self.reply();
+                let picked = this.getPickedColor();
+                this.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b})`;
+                this.reply();
             }
         };
 
         const colorClicked = (event) => {
-            self.colorIndicatorPosition.x = event.clientX - self.colorCanvas.getBoundingClientRect().left;
-            self.colorIndicatorPosition.y = event.clientY - self.colorCanvas.getBoundingClientRect().top;
-            self.colorMarker.css({ top: self.colorIndicatorPosition.y + 'px', left: self.colorIndicatorPosition.x + 'px' });
+            this.colorIndicatorPosition.x = event.clientX - this.colorCanvas.getBoundingClientRect().left;
+            this.colorIndicatorPosition.y = event.clientY - this.colorCanvas.getBoundingClientRect().top;
+            this.colorMarker.css({ top: this.colorIndicatorPosition.y + 'px', left: this.colorIndicatorPosition.x + 'px' });
 
-            let picked = self.getPickedColor();
-            self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b})`;
-            self.reply();
+            let picked = this.getPickedColor();
+            this.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b})`;
+            this.reply();
         }
 
         const colorMouseUp = (event) => {
             isColorMouseDown = false;
-            self.calibrateOpacity();
+            this.calibrateOpacity();
         };
 
         //Register
-        self.colorCanvas.addEventListener("mousedown", colorMouseDown);
-        self.colorCanvas.addEventListener("mousemove", colorMouseMove);
-        self.colorCanvas.addEventListener("click", colorClicked);
-        self.colorCanvas.addEventListener("mouseup", colorMouseUp);
+        this.colorCanvas.addEventListener("mousedown", colorMouseDown);
+        this.colorCanvas.addEventListener("mousemove", colorMouseMove);
+        this.colorCanvas.addEventListener("click", colorClicked);
+        this.colorCanvas.addEventListener("mouseup", colorMouseUp);
 
         const opacityMouseDown = (event) => {
-            let currentX = event.clientX - self.opacityCanvas.getBoundingClientRect().left;
-            let currentY = event.clientY - self.opacityCanvas.getBoundingClientRect().top;
+            let currentX = event.clientX - this.opacityCanvas.getBoundingClientRect().left;
+            let currentY = event.clientY - this.opacityCanvas.getBoundingClientRect().top;
 
             //is mouse in color picker
-            isOpacityMouseDown = (currentX > 0 && currentX < self.opacityCanvas.getBoundingClientRect().width && currentY > 0 && currentY < self.opacityCanvas.getBoundingClientRect().height);
+            isOpacityMouseDown = (currentX > 0 && currentX < this.opacityCanvas.getBoundingClientRect().width && currentY > 0 && currentY < this.opacityCanvas.getBoundingClientRect().height);
         };
 
         const opacityMouseMove = (event) => {
             if (isOpacityMouseDown) {
-                self.opacityIndicatorPosition.x = event.clientX - self.opacityCanvas.getBoundingClientRect().left;
-                self.opacityIndicatorPosition.y = event.clientY - self.opacityCanvas.getBoundingClientRect().top;
-                self.opacityMarker.css({ top: self.opacityIndicatorPosition.y + 'px' });
+                this.opacityIndicatorPosition.x = event.clientX - this.opacityCanvas.getBoundingClientRect().left;
+                this.opacityIndicatorPosition.y = event.clientY - this.opacityCanvas.getBoundingClientRect().top;
+                this.opacityMarker.css({ top: this.opacityIndicatorPosition.y + 'px' });
 
-                let picked = self.getPickedOpacity();
-                self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b}, ${picked.a})`;
-                self.reply();
+                let picked = this.getPickedOpacity();
+                this.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b}, ${picked.a})`;
+                this.reply();
             }
         };
 
         const opacityClicked = (event) => {
-            self.opacityIndicatorPosition.x = event.clientX - self.opacityCanvas.getBoundingClientRect().left;
-            self.opacityIndicatorPosition.y = event.clientY - self.opacityCanvas.getBoundingClientRect().top;
-            self.opacityMarker.css({ top: self.opacityIndicatorPosition.y + 'px' });
+            this.opacityIndicatorPosition.x = event.clientX - this.opacityCanvas.getBoundingClientRect().left;
+            this.opacityIndicatorPosition.y = event.clientY - this.opacityCanvas.getBoundingClientRect().top;
+            this.opacityMarker.css({ top: this.opacityIndicatorPosition.y + 'px' });
 
-            let picked = self.getPickedOpacity();
-            self.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b}, ${picked.a})`;
-            self.reply();
+            let picked = this.getPickedOpacity();
+            this.pickedColor = `rgb(${picked.r}, ${picked.g}, ${picked.b}, ${picked.a})`;
+            this.reply();
         };
 
         const opacityMouseUp = (event) => {
             isOpacityMouseDown = false;
         };
 
-        self.opacityCanvas.addEventListener("mousedown", opacityMouseDown);
-        self.opacityCanvas.addEventListener("mousemove", opacityMouseMove);
-        self.opacityCanvas.addEventListener("click", opacityClicked);
-        self.opacityCanvas.addEventListener("mouseup", opacityMouseUp);
+        this.opacityCanvas.addEventListener("mousedown", opacityMouseDown);
+        this.opacityCanvas.addEventListener("mousemove", opacityMouseMove);
+        this.opacityCanvas.addEventListener("click", opacityClicked);
+        this.opacityCanvas.addEventListener("mouseup", opacityMouseUp);
     }
 
-    self.reply = () => {
-        self.converColor();
-        self.picker.dispatchEvent(new CustomEvent('colorChanged'));
-        self.picker.find('#picked-color').css({ backgroundColor: self.convertedColor });
-        self.picker.find('#picked-color-value').innerText = self.convertedColor;
+    this.reply = () => {
+        this.converColor();
+        this.picker.dispatchEvent(new CustomEvent('colorChanged'));
+        this.picker.find('#picked-color').css({ backgroundColor: this.convertedColor });
+        this.picker.find('#picked-color-value').innerText = this.convertedColor;
     }
 
-    self.converColor = () => {
-        if (self.convertTo == 'HEX') {
-            self.convertedColor = self.rgbToHex(self.pickedColor);
+    this.converColor = () => {
+        if (this.convertTo == 'HEX') {
+            this.convertedColor = this.rgbToHex(this.pickedColor);
         }
-        else if (self.convertTo == 'HSL') {
-            self.convertedColor = self.rgbToHSL(self.pickedColor);
+        else if (this.convertTo == 'HSL') {
+            this.convertedColor = this.rgbToHSL(this.pickedColor);
         }
-        else if (self.convertTo == 'RGB') {
-            self.convertedColor = self.pickedColor;
+        else if (this.convertTo == 'RGB') {
+            this.convertedColor = this.pickedColor;
         }
     }
 
-    self.onChanged = (callBack) => {
-        self.picker.addEventListener('colorChanged', event => {
-            callBack(self.convertedColor);
+    this.onChanged = (callBack) => {
+        this.picker.addEventListener('colorChanged', event => {
+            callBack(this.convertedColor);
         });
     }
 
-    self.getPickedColor = () => {
-        let imageData = self.colorContext.getImageData(self.colorIndicatorPosition.x, self.colorIndicatorPosition.y, 1, 1);
+    this.getPickedColor = () => {
+        let imageData = this.colorContext.getImageData(this.colorIndicatorPosition.x, this.colorIndicatorPosition.y, 1, 1);
         return { r: imageData.data[0], g: imageData.data[1], b: imageData.data[2] };
     }
 
-    self.getPickedOpacity = () => {
-        let imageData = self.opacityContext.getImageData(self.opacityIndicatorPosition.x, self.opacityIndicatorPosition.y, 1, 1);
+    this.getPickedOpacity = () => {
+        let imageData = this.opacityContext.getImageData(this.opacityIndicatorPosition.x, this.opacityIndicatorPosition.y, 1, 1);
 
         let alpha = Math.ceil(((imageData.data[3] / 255) * 100)) / 100;
         return { r: imageData.data[0], g: imageData.data[1], b: imageData.data[2], a: alpha };
     }
 
-    self.draw = (params) => {
-        self.init(params);
-        self.calibrateColor();
-        self.calibrateOpacity();
+    this.draw = (params) => {
+        this.init(params);
+        this.calibrateColor();
+        this.calibrateOpacity();
 
         let interval = setTimeout(() => {
-            self.added = true;
+            this.added = true;
             clearTimeout(interval);
         }, 2000);
 
-        return self.picker;
+        return this.picker;
     }
 
-    self.dispose = () => {
-        clearInterval(self.interval);
-        self.picker.remove();
+    this.dispose = () => {
+        clearInterval(this.interval);
+        this.picker.remove();
     }
 
-    self.colorType = (color = '#ffffff') => {
+    this.colorType = (color = '#ffffff') => {
         let type = 'string';
         if (color.indexOf('#') == 0 && (color.length - 1) % 3 == 0) {
             type = 'hex';
         }
         else if (color.indexOf('rgba') == 0) {
-            let values = self.base.inBetween(color, 'rgba(', ')');
+            let values = base.inBetween(color, 'rgba(', ')');
             if (values != -1 && values.split(',').length == 4) {
                 type = 'rgba';
             }
         }
         else if (color.indexOf('rgb') == 0) {
-            let values = self.base.inBetween(color, 'rgb(', ')');
+            let values = base.inBetween(color, 'rgb(', ')');
             if (values != -1 && values.split(',').length == 3) {
                 type = 'rgb';
             }
         }
         else if (color.indexOf('hsla') == 0) {
-            let values = self.base.inBetween(color, 'hsla(', ')');
+            let values = base.inBetween(color, 'hsla(', ')');
             if (values != -1 && values.split(',').length == 4) {
                 type = 'hsla';
             }
         }
         else if (color.indexOf('hsl') == 0) {
-            let values = self.base.inBetween(color, 'hsl(', ')');
+            let values = base.inBetween(color, 'hsl(', ')');
             if (values != -1 && values.split(',').length == 3) {
                 type = 'hsl';
             }
@@ -373,7 +371,7 @@ function ColorPicker() {
         return type;
     }
 
-    self.hexToRGB = (hex = '#ffffff', alpha = true) => {
+    this.hexToRGB = (hex = '#ffffff', alpha = true) => {
         let r = 0, g = 0, b = 0, a = 255;
         if (hex.length == 4) {
             r = "0x" + hex[1] + hex[1];
@@ -407,18 +405,18 @@ function ColorPicker() {
         }
     }
 
-    self.hexToHSL = (hex = '#ffffff', alpha = true) => {
-        let color = self.hexToRGB(hex, alpha);
-        color = self.rgbToHSL(color, alpha);
+    this.hexToHSL = (hex = '#ffffff', alpha = true) => {
+        let color = this.hexToRGB(hex, alpha);
+        color = this.rgbToHSL(color, alpha);
         return color;
     }
 
-    self.rgbToHex = (rgb = 'rgb(0, 0, 0)', alpha = true) => {
+    this.rgbToHex = (rgb = 'rgb(0, 0, 0)', alpha = true) => {
         let start = rgb.indexOf('(') + 1;
         let end = rgb.indexOf(')');
         let [r, g, b, a] = rgb.slice(start, end).split(',');
 
-        if (!self.base.isset(a)) {
+        if (!base.isset(a)) {
             a = 1;
         }
 
@@ -453,13 +451,12 @@ function ColorPicker() {
         return hex;
     }
 
-    self.rgbToHSL = (rgb = 'rgb(0, 0, 0)', alpha = true) => {
+    this.rgbToHSL = (rgb = 'rgb(0, 0, 0)', alpha = true) => {
         let start = rgb.indexOf('(') + 1;
         let end = rgb.indexOf(')');
         let [r, g, b, a] = rgb.slice(start, end).split(',');
 
-        console.log(r, g, b);
-        if (!self.base.isset(a)) {
+        if (!base.isset(a)) {
             a = 1;
         }
 
@@ -512,17 +509,15 @@ function ColorPicker() {
         return hsl;
     }
 
-    self.hslToRGB = (hsl = 'hsl(0, 0%, 0%)', alpha = true) => {
+    this.hslToRGB = (hsl = 'hsl(0, 0%, 0%)', alpha = true) => {
         let rgb = 'rgb';
         let start = hsl.indexOf('(') + 1;
         let end = hsl.indexOf(')');
         let [h, s, l, a] = hsl.slice(start, end).split(',');
 
-        if (!self.base.isset(a)) {
+        if (!base.isset(a)) {
             a = 1;
         }
-
-        console.log(h, s, l);
 
         if (h.indexOf("deg") > -1)
             h = h.substr(0, h.length - 3);
@@ -571,15 +566,15 @@ function ColorPicker() {
         return rgb;
     }
 
-    self.hslToHex = (hsl = '', alpha = true) => {
-        let color = self.hslToRGB(hsl, alpha);
-        return self.rgbToHex(color, alpha);
+    this.hslToHex = (hsl = '', alpha = true) => {
+        let color = this.hslToRGB(hsl, alpha);
+        return this.rgbToHex(color, alpha);
     }
 
-    self.addOpacity = (color = 'rgb(0, 0, 0)', opacity = 0.5) => {
-        let type = self.colorType(color);
-        if (type == 'hex') color = self.hexToRGB(color);
-        else if (type == 'hsl' || type == 'hsla') color = self.hslToRGB(color);
+    this.addOpacity = (color = 'rgb(0, 0, 0)', opacity = 0.5) => {
+        let type = this.colorType(color);
+        if (type == 'hex') color = this.hexToRGB(color);
+        else if (type == 'hsl' || type == 'hsla') color = this.hslToRGB(color);
 
         let start = color.indexOf('(') + 1;
         let end = color.indexOf(')');
@@ -588,45 +583,53 @@ function ColorPicker() {
 
         let changedColor = `rgba(${points.join(',')})`;
 
-        if (type == 'hex') changedColor = self.rgbToHex(changedColor);
-        else if (type == 'hsl' || type == 'hsla') changedColor = self.rgbToHSL(changedColor);
+        if (type == 'hex') changedColor = this.rgbToHex(changedColor);
+        else if (type == 'hsl' || type == 'hsla') changedColor = this.rgbToHSL(changedColor);
 
         return changedColor;
     }
 
-    self.getOpacity = (color = 'rgb(0, 0, 0)') => {
-        color = self.base.inBetween(color, '(', ')');
+    this.getOpacity = (color = 'rgb(0, 0, 0)') => {
+        color = base.inBetween(color, '(', ')');
         let [r, g, b, a] = color.split(',');
         return a.trim();
     }
 
-    self.invertColor = (color = '#ffffff') => {
-        let type = self.colorType(color);
+    this.invertColor = (color = '#ffffff') => {
+        let type = this.colorType(color);
         let invert;
         if (type == 'hex') {
             color = color.replace('#', '');
-            invert = '#' + self.invertHex(color);
+            invert = '#' + this.invertHex(color);
         }
         else if (type == 'rgb') {
-            color = self.rgbToHex(color).replace('#', '');
-            invert = self.invertHex(color);
-            invert = self.hexToRGB(invert);
+            color = this.rgbToHex(color).replace('#', '');
+            invert = this.invertHex(color);
+            invert = this.hexToRGB(invert);
         }
         else if (type == 'rgba') {
-            let opacity = self.getOpacity(color);
-            color = self.rgbToHex(color).replace('#', '');
-            invert = self.invertHex(color);
-            invert = self.hexToRGB(invert);
-            invert = self.addOpacity(invert, opacity);
+            let opacity = this.getOpacity(color);
+            color = this.rgbToHex(color).replace('#', '');
+            invert = this.invertHex(color);
+            invert = this.hexToRGB(invert);
+            invert = this.addOpacity(invert, opacity);
         }
         return invert;
     }
 
-    self.invertHex = (hex = 'ffffff') => {
+    this.invertHex = (hex = 'ffffff') => {
         return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase();
     }
 
-    return self;
+    this.nameToHex = (color = 'white') => {
+        let ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = color;
+        return ctx.fillStyle;
+    }
+
+    this.nameToRGB = (color = 'white') => {
+        return this.hexToRGB(this.nameToHex(color));
+    }
 }
 
 module.exports = ColorPicker;

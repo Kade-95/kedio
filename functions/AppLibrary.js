@@ -2,9 +2,7 @@ const Func = require('./../classes/Func');
 let func = new Func();
 
 function AppLibrary() {
-    let self = {};
-
-    self.makeWebapp = (callback = () => { }) => {
+    this.makeWebapp = (callback = () => { }) => {
         document.addEventListener('click', event => {
             let anchor = event.target;
             let parentAnchor = event.target.getParents('a');
@@ -22,11 +20,11 @@ function AppLibrary() {
             let target = anchor.getAttribute('target');
 
             if (target == '_blank') {//check if it is for new page
-                window.open(self.prepareUrl(url));
+                window.open(this.prepareUrl(url));
             }
             else if (!func.isnull(url)) {
                 event.preventDefault();//block and open inside as webapp
-                if (self.prepareUrl(url) != location.href) window.history.pushState('page', 'title', url);
+                if (this.prepareUrl(url) != location.href) window.history.pushState('page', 'title', url);
                 callback();
             }
         });
@@ -34,7 +32,7 @@ function AppLibrary() {
         window.onpopstate = callback;
     }
 
-    self.prepareUrl = (url = '') => {
+    this.prepareUrl = (url = '') => {
         if (!url.includes(location.origin)) {
             let splitUrl = func.urlSplitter(url);
             if (splitUrl.location == location.origin) {
@@ -48,7 +46,7 @@ function AppLibrary() {
         return url;
     }
 
-    self.ajax = (params = { async: true, data: {}, url: '', method: '', secured: false }) => {
+    this.ajax = (params = { async: true, data: {}, url: '', method: '', secured: false }) => {
         params.async = params.async || true;
         params.data = params.data || {};
         params.url = params.url || './';
@@ -96,8 +94,6 @@ function AppLibrary() {
             request.send(data);
         });
     }
-
-    return self;
 }
 
 module.exports = AppLibrary;

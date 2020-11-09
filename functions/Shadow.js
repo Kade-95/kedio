@@ -2,9 +2,11 @@ const Func = require('./../classes/Func');
 let func = new Func();
 
 function Shadow(element) {
-    let self = { element: element.cloneNode(true), children: [element], properties: {}, childProperties: {} };
+    this.element = element.cloneNode(true);
+    this.properties = {};
+    this.childProperties = {};
 
-    self.updateNewElementChildProperties = function (element, propertyCollection = {}) {
+    this.updateNewElementChildProperties = function (element, propertyCollection = {}) {
         let children, positions;
         for (let identifier in propertyCollection) {
             for (let childProperties of propertyCollection[identifier]) {
@@ -17,7 +19,7 @@ function Shadow(element) {
         }
     }
 
-    self.updateNewElementChildAttributes = function (element, attributeCollection = {}) {
+    this.updateNewElementChildAttributes = function (element, attributeCollection = {}) {
         let children, positions;
         for (let identifier in attributeCollection) {
             for (let childAtrributes of attributeCollection[identifier]) {
@@ -30,7 +32,7 @@ function Shadow(element) {
         }
     }
 
-    self.setPositions = function (positions = 1) {
+    this.setPositions = function (positions = 1) {
         if (!Array.isArray(positions)) {
             positions = func.range(positions);
         }
@@ -38,7 +40,7 @@ function Shadow(element) {
         return positions;
     }
 
-    self.createElement = function (params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
+    this.createElement = function (params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
         let element = this.element.cloneNode(true);
         this.children.push(element);
 
@@ -46,7 +48,7 @@ function Shadow(element) {
         return element;
     }
 
-    self.prepareElement = function (element, params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
+    this.prepareElement = function (element, params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
         if (params.childDetails != undefined) {
             if (params.childDetails.attributes != undefined) {
                 this.updateNewElementChildAttributes(element, params.childDetails.attributes);
@@ -73,7 +75,7 @@ function Shadow(element) {
         this.makeCloneable(element);
     }
 
-    self.removeElement = function (element) {
+    this.removeElement = function (element) {
         let children = [];
         let position = this.children.indexOf(element);
         for (let i = 0; i < this.children.lengt; i++) {
@@ -84,7 +86,7 @@ function Shadow(element) {
         this.children = children;
     }
 
-    self.cloneElement = function (position, params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
+    this.cloneElement = function (position, params = { childDetails: { attributes: {}, properties: {} }, details: { attributes: {}, properties: {} } }) {
         let element = this.children[position].cloneNode(true);
         this.children.push(element);
 
@@ -92,7 +94,7 @@ function Shadow(element) {
         return element;
     }
 
-    self.makeCloneable = function (element) {
+    this.makeCloneable = function (element) {
         let position = this.children.indexOf(element);
         if (position == -1) {
             return;
@@ -103,11 +105,11 @@ function Shadow(element) {
         }
     }
 
-    self.length = function () {
+    this.length = function () {
         return this.children.length;
     }
 
-    self.setProperties = function (properties = {}) {
+    this.setProperties = function (properties = {}) {
         for (let i = 0; i < this.children.length; i++) {
             this.children[i].setProperties(properties);
         }
@@ -117,35 +119,35 @@ function Shadow(element) {
         }
     }
 
-    self.css = function (style = {}) {
+    this.css = function (style = {}) {
         for (let i = 0; i < this.children.length; i++) {
             this.children[i].css(style);
         }
         this.element.css(style);
     }
 
-    self.setAttributes = function (attributes = {}) {
+    this.setAttributes = function (attributes = {}) {
         for (let i = 0; i < this.children.length; i++) {
             this.children[i].setAttributes(attributes);
         }
         this.element.setAttributes(attributes);
     }
 
-    self.addClasses = function (classes = '') {
+    this.addClasses = function (classes = '') {
         for (let i = 0; i < this.children.length; i++) {
             this.children[i].addClasses(classes);
         }
         this.element.addClasses(classes);
     }
 
-    self.removeClasses = function (classes = '') {
+    this.removeClasses = function (classes = '') {
         for (let i = 0; i < this.children.length; i++) {
             this.children[i].removeClasses(classes);
         }
         this.element.removeClasses(classes);
     }
 
-    self.getChildren = function (identifier = '', element, positions = []) {
+    this.getChildren = function (identifier = '', element, positions = []) {
         let collection = [];
         let children = element.findAll(identifier);//get the children matching identifier in each element
         if (children.length > 0) {//if not empty
@@ -158,7 +160,7 @@ function Shadow(element) {
         return collection;
     }
 
-    self.childCss = function (identifier = '', style = {}, positions = []) {
+    this.childCss = function (identifier = '', style = {}, positions = []) {
         positions = this.setPositions(positions);
 
         let children;
@@ -177,7 +179,7 @@ function Shadow(element) {
         }
     }
 
-    self.setChildProperties = function (identifier = '', properties = {}, positions = []) {
+    this.setChildProperties = function (identifier = '', properties = {}, positions = []) {
         positions = this.setPositions(positions);
 
         let children;
@@ -198,7 +200,7 @@ function Shadow(element) {
         this.childProperties[identifier].push({ properties, positions });
     }
 
-    self.setChildAttributes = function (identifier = '', attributes = {}, positions = '') {
+    this.setChildAttributes = function (identifier = '', attributes = {}, positions = '') {
         positions = this.setPositions(positions);
 
         let children;
@@ -217,7 +219,7 @@ function Shadow(element) {
         }
     }
 
-    self.addClassesToChild = function (identifier = '', classes = '', positions = []) {
+    this.addClassesToChild = function (identifier = '', classes = '', positions = []) {
         positions = this.setPositions(positions);
 
         let children;
@@ -236,7 +238,7 @@ function Shadow(element) {
         }
     }
 
-    self.removeClassesFromChild = function (identifier = '', classes = '', positions = []) {
+    this.removeClassesFromChild = function (identifier = '', classes = '', positions = []) {
         positions = this.setPositions(positions);
 
         let children;
@@ -254,7 +256,6 @@ function Shadow(element) {
             children[j].removeClasses(classes);
         }
     }
-    return self;
 }
 
 module.exports = Shadow;

@@ -11,8 +11,8 @@ class Base extends Components {
     constructor(theWindow = Empty) {
         super(theWindow);
         this.colorHandler = new ColorPicker();
-        this.array = ArrayLibrary();
-        this.object = ObjectsLibrary();
+        this.array =  new ArrayLibrary();
+        this.object = new ObjectsLibrary();
         this.icons = Icons;
     }
 }

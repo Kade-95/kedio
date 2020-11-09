@@ -1,5 +1,4 @@
 const Base = require('./classes/Base');
-const ColorPicker = require('./classes/ColorPicker');
 const Components = require('./classes/Components');
 const Func = require('./classes/Func');
 const JSElements = require('./classes/JSElements');
@@ -19,6 +18,7 @@ const Shadow = require('./functions/Shadow');
 const ObjectsLibrary = require('./functions/ObjectsLibrary');
 const IndexedLibrary = require('./functions/IndexedLibrary');
 const MongoLibrary = require('./functions/MongoLibrary');
+const ColorPicker = require('./functions/ColorPicker');
 const Icons = require('./Icons');
 
 module.exports = {

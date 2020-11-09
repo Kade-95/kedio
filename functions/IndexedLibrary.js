@@ -1,14 +1,16 @@
 const ObjectsLibrary = require('./ObjectsLibrary');
-let objectLibrary = ObjectsLibrary();
+let objectLibrary = new ObjectsLibrary();
 
 function IndexedLibrary(name, version) {
-    let self = { name, version, initialized: false };
-    self.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-    self.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
-    self.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+    this.name = name;
+    this.version = version;
+    this.initialized = false;
+    this.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+    this.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+    this.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-    self.init = function (callback) {//initialize db by setting the current version
-        const request = self.indexedDB.open(self.name);
+    this.init = function (callback) {//initialize db by setting the current version
+        const request = this.indexedDB.open(this.name);
         request.onupgradeneeded = (event) => {
             if (typeof callback == 'function') {
                 (callback(event.target.result));
@@ -16,8 +18,8 @@ function IndexedLibrary(name, version) {
         }
 
         request.onsuccess = (event) => {
-            self.version = Math.floor(request.result.version) || Math.floor(self.version);
-            self.initialized = true;
+            this.version = Math.floor(request.result.version) || Math.floor(this.version);
+            this.initialized = true;
         }
 
         request.onerror = (event) => {
@@ -25,15 +27,15 @@ function IndexedLibrary(name, version) {
         }
     }
 
-    self.getVersion = function () {
+    this.getVersion = function () {
         return new Promise((resolve, reject) => {
-            const request = self.indexedDB.open(self.name);
+            const request = this.indexedDB.open(this.name);
             request.onsuccess = (event) => {
-                if (self.version == undefined || self.version < request.result.version) {
-                    self.version = request.result.version;
+                if (this.version == undefined || this.version < request.result.version) {
+                    this.version = request.result.version;
                 }
                 request.result.close();
-                resolve(self.version);
+                resolve(this.version);
             }
 
             request.onerror = (event) => {
@@ -42,14 +44,14 @@ function IndexedLibrary(name, version) {
         })
     }
 
-    self.open = async function (callback) {
-        if (self.version == undefined) {
-            await self.getVersion();//set the version if not set
+    this.open = async function (callback) {
+        if (this.version == undefined) {
+            await this.getVersion();//set the version if not set
         }
         return new Promise((resolve, reject) => {
-            const request = self.indexedDB.open(self.name, self.version);//open db
+            const request = this.indexedDB.open(this.name, this.version);//open db
             request.onupgradeneeded = (event) => {
-                self.version = request.result.version;//update version after upgrade
+                this.version = request.result.version;//update version after upgrade
 
                 if (typeof callback == 'function') {//run the callback if set
                     let workedDb = callback(event.target.result);
@@ -69,17 +71,17 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.collectionExists = function (collection) {
-        return self.open().then(db => {
+    this.collectionExists = function (collection) {
+        return this.open().then(db => {
             let exists = db.objectStoreNames.contains(collection);//check if db has this collection in objectstore
             return exists;
         });
     }
 
-    self.createCollection = async function (...collections) {
-        let version = await self.getVersion();//upgrade collection
-        self.version = version + 1;
-        return self.open(db => {
+    this.createCollection = async function (...collections) {
+        let version = await this.getVersion();//upgrade collection
+        this.version = version + 1;
+        return this.open(db => {
             for (let collection of collections) {
                 if (!db.objectStoreNames.contains(collection)) {//create new collection and set _id as the keypath
                     db.createObjectStore(collection, { keyPath: '_id' });
@@ -89,9 +91,9 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.find = function (params) {
+    this.find = function (params) {
         return new Promise((resolve, reject) => {
-            self.open().then(db => {
+            this.open().then(db => {
                 let documents = [];
 
                 if (db.objectStoreNames.contains(params.collection)) {//collection exists
@@ -152,11 +154,11 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.emptyCollection = function (collection) {
+    this.emptyCollection = function (collection) {
         let removedCount = 0, foundCount = 0;//set the counters
         return new Promise((resolve, reject) => {
-            self.find({ collection, query: {}, many: true }).then(found => {//find all documents
-                self.open().then(db => {
+            this.find({ collection, query: {}, many: true }).then(found => {//find all documents
+                this.open().then(db => {
                     if (db.objectStoreNames.contains(collection)) {//handle collection non-existence error
                         let transaction = db.transaction(collection, 'readwrite');
                         let store = transaction.objectStore(collection);
@@ -197,26 +199,26 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.documentExists = function (params) {
+    this.documentExists = function (params) {
         delete params.many;//check for only one
-        return self.find(params).then(res => {//
+        return this.find(params).then(res => {//
             return res != undefined;
         });
     }
 
-    self.generateId = function () {
+    this.generateId = function () {
         let id = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);//generate the id using time
         return id;
     }
 
-    self.checkId = function (request, _id, callback) {
+    this.checkId = function (request, _id, callback) {
         if (typeof _id != 'string') {
-            _id = self.generateId();//get new _id if not set
+            _id = this.generateId();//get new _id if not set
         }
         let get = request.get(_id);//check if existing
         get.onsuccess = event => {
             if (event.target.result != undefined) {
-                self.checkId(request, _id, callback);
+                this.checkId(request, _id, callback);
             }
             else {
                 callback(_id);//use the _id
@@ -228,7 +230,7 @@ function IndexedLibrary(name, version) {
         }
     }
 
-    self.add = function (params, db) {
+    this.add = function (params, db) {
         return new Promise((resolve, reject) => {
             let transaction = db.transaction(params.collection, 'readwrite');
             transaction.onerror = (event) => {
@@ -245,14 +247,14 @@ function IndexedLibrary(name, version) {
 
             if (params.many == true && Array.isArray(params.query)) {// for many
                 for (let query of params.query) {
-                    self.checkId(request, query._id, _id => {//validate _id
+                    this.checkId(request, query._id, _id => {//validate _id
                         query._id = _id;
                         request.add(query);//add
                     });
                 }
             }
             else {
-                self.checkId(request, params.query._id, _id => {//validate _id
+                this.checkId(request, params.query._id, _id => {//validate _id
                     params.query._id = _id;
                     request.add(params.query);//add
                 });
@@ -260,21 +262,21 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.insert = async function (params) {
-        let isCollection = await self.collectionExists(params.collection);
+    this.insert = async function (params) {
+        let isCollection = await this.collectionExists(params.collection);
         if (isCollection) {//collection is existing
-            return self.open()
+            return this.open()
                 .then(db => {
-                    return self.add(params, db);//add to collection
+                    return this.add(params, db);//add to collection
                 })
                 .catch(error => {
                     return error;
                 });
         }
         else {
-            return self.createCollection(params.collection)//create collection
+            return this.createCollection(params.collection)//create collection
                 .then(db => {
-                    return self.add(params, db);//add to new Collection
+                    return this.add(params, db);//add to new Collection
                 })
                 .catch(error => {
                     return error;
@@ -282,9 +284,9 @@ function IndexedLibrary(name, version) {
         }
     }
 
-    self.update = function (params) {
+    this.update = function (params) {
         return new Promise((resolve, reject) => {
-            self.open().then(db => {
+            this.open().then(db => {
                 if (!db.objectStoreNames.contains(params.collection)) {
                     db.close();
                     reject('Collection not found');
@@ -349,23 +351,23 @@ function IndexedLibrary(name, version) {
         });
     }
 
-    self.save = function (params = { collection: '', query: {}, check: {} }) {
+    this.save = function (params = { collection: '', query: {}, check: {} }) {
         //check existence of document
-        return self.documentExists({ collection: params.collection, query: params.check }).then(exists => {
+        return this.documentExists({ collection: params.collection, query: params.check }).then(exists => {
             if (exists == false) {
-                return self.insert(params);//insert if not found
+                return this.insert(params);//insert if not found
             }
             else {
-                return self.update(params);// update if found
+                return this.update(params);// update if found
             }
         });
     }
 
-    self.delete = function (params) {
+    this.delete = function (params) {
         let foundCount = 0, removedCount = 0;//set the counters
         return new Promise((resolve, reject) => {
-            self.find(params).then(found => {
-                self.open().then(db => {
+            this.find(params).then(found => {
+                this.open().then(db => {
                     let transaction = db.transaction(params.collection, 'readwrite');
                     let store = transaction.objectStore(params.collection);
 
@@ -413,8 +415,6 @@ function IndexedLibrary(name, version) {
             });
         });
     }
-
-    return self;
 }
 
 module.exports = IndexedLibrary;

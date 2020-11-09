@@ -1,3 +1,3 @@
-const {Base, IndexedLibrary} = require('./../../browser');
+const {Base} = require('./../../browser');
 
 window.base = new Base(window);
