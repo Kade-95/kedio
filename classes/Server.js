@@ -10,7 +10,7 @@ let func = new Func();
 
 class Server {
     constructor() {
-        this.request = RequestsLibrary();
+        this.request = new RequestsLibrary();
         this.sessionsManager = new SessionsManager();
         this.allowSessions = false;
         this.mimeTypes = {
