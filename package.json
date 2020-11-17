@@ -1,6 +1,6 @@
 {
   "name": "kedio",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "A Full Stacked JavaScript Library",
   "main": "index.js",
   "dependencies": {
