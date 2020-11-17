@@ -258,11 +258,10 @@ class Period extends Func {
     }
 
     today() {
-        var today = new Date;
-        var month = today.getMonth() / 1 + 1;
-        if (month.length != 2) {
-            month = '0' + month;
-        }
+        let today = new Date;
+        let month = today.getMonth() / 1 + 1;
+        month = (month.length > 1) ? month : `0${month}`;
+
         today = (today.getFullYear()) + '-' + month + '-' + today.getDate();
         return today;
     }
@@ -301,9 +300,9 @@ class Period extends Func {
     }
 
     dateString(date) {
-        var year = new Number(this.getYear(date));
-        var month = new Number(this.isMonthValid(date));
-        var day = new Number(this.isDayValid(date));
+        let year = new Number(this.getYear(date));
+        let month = new Number(this.isMonthValid(date));
+        let day = new Number(this.isDayValid(date));
 
         return day + ' ' + this.months[month - 1] + ', ' + year;
     }

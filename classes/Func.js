@@ -228,7 +228,7 @@ class Func {
         else if (type == 'alphanumsym') {
             string = this.capitals + this.smalls + this.digits + this.symbols;
         }
-        
+
         let random = '';
         for (let i = 0; i < length; i++) {
             random += string[Math.floor(Math.random() * string.length)];
@@ -565,8 +565,8 @@ class Func {
     }
 
     async runParallel(functions = [], callBack = () => { }) {
-        var results = {};
-        for (var f in functions) {
+        let results = {};
+        for (let f in functions) {
             results[f] = await functions[f];
         }
         callBack(results);
@@ -620,8 +620,14 @@ class Func {
                 }
             }
             let httphost = protocol + '://' + host;
-            let splitHost = host.split('.').reverse();
-            let domain = `${splitHost[1]}.${splitHost[0]}`;
+
+            let splitHost = host.split('.');
+            let domain = host;
+
+            if (isNaN(this.stringReplace(hostName, '.', ''))) {
+                if (splitHost.length > 2) splitHost.shift();
+                domain = splitHost.join('.');
+            }
 
             return { location, protocol, fullPath, host, httphost, hostName, port, path, pathName, queries, vars, hash, domain };
         }

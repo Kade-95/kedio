@@ -16,7 +16,6 @@ const Shadow = require('./functions/Shadow');
 const ObjectsLibrary = require('./functions/ObjectsLibrary');
 const IndexedLibrary = require('./functions/IndexedLibrary');
 const ColorPicker = require('./functions/ColorPicker');
-const Icons = require('./Icons');
 
 module.exports = {
     Base,
@@ -37,5 +36,4 @@ module.exports = {
     Tree,
     Period,
     JSElements,
-    Icons
 }

@@ -2,7 +2,6 @@ const Components = require('./Components');
 const ColorPicker = require('../functions/ColorPicker');
 const ArrayLibrary = require('./../functions/ArrayLibrary');
 const ObjectsLibrary = require('./../functions/ObjectsLibrary');
-const Icons = require('./../Icons');
 
 class Empty {
 }
@@ -13,7 +12,6 @@ class Base extends Components {
         this.colorHandler = new ColorPicker();
         this.array =  new ArrayLibrary();
         this.object = new ObjectsLibrary();
-        this.icons = Icons;
     }
 }
 

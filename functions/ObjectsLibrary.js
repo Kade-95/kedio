@@ -258,6 +258,32 @@ function ObjectsLibrary() {
     this.includes = (data = {}, item) => {//check if an Object has an item
         return this.keyOf(data, item) != -1;
     }
+
+    this.aggregate = (data = {}, groups = {}) => {
+        let funcs = {
+            $sum: (...a) => { return a.reduce((i, j) => i + j) },
+            $dif: (...a) => { return a[0] - a[1] ? a[1] : 0 },
+            $mul: (...a) => { return a.reduce((i, j) => i * j) },
+            $dif: (...a) => { return a[0] - a[1] ? a[1] : 1 },
+            cast: (a, to) => {
+                if (to == 'int') a = parseInt(a);
+                else if (to == 'float') a = parseFloat(a);
+                else if (to == 'string') a = a.toString();
+                else if (to == 'date') a = new Date(a);
+                return a;
+            },
+        }
+
+        let agg = Object.assign({}, data);
+        let x, list, l;
+        for (x in groups) {
+            list = [];
+            for (l of groups[x].list) list.push(agg[l]);
+            agg[x] = funcs[groups[x].action](...list);
+        }
+
+        return agg;
+    }
 }
 
 module.exports = ObjectsLibrary;

@@ -19,7 +19,6 @@ const ObjectsLibrary = require('./functions/ObjectsLibrary');
 const IndexedLibrary = require('./functions/IndexedLibrary');
 const MongoLibrary = require('./functions/MongoLibrary');
 const ColorPicker = require('./functions/ColorPicker');
-const Icons = require('./Icons');
 
 module.exports = {
     Base,
@@ -30,7 +29,6 @@ module.exports = {
     Components,
     Template,
     NeuralNetwork,
-    Icons,
     Shadow,
     ArrayLibrary,
     ObjectsLibrary,
