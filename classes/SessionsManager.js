@@ -13,9 +13,11 @@ class SessionsManager {
     constructor() {
         this.actualSessions = {};
         this.sessions = objectLib.onChanged(this.actualSessions, (target, p, d) => {
-            this.write(target.key)
-                .then()
-                .catch(console.log);
+            setTimeout(() => {
+                this.write(target.key)
+                    .then()
+                    .catch(console.log);
+            }, 10);
         });
         this.cookies = {};
     }
