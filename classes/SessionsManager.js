@@ -110,7 +110,8 @@ class SessionsManager {
         let sessionId = req.sessionId;
 
         this.read(sessionId).then(result => {//Fetch session from database    
-            if (!func.isnull(result)) {//Sessions is found in database
+            if (!func.isnull(result)) {
+                //Sessions is found in database
                 Object.keys(result).map(key => {
                     this.sessions[sessionId][key] = result[key];
                 });
@@ -128,7 +129,6 @@ class SessionsManager {
             else if (func.isnull(result)) {
                 // session doesn't exist
                 // and not in database
-
                 //Check if previous login was persistent
                 persistence.checkCredentials(res, this.cookies).then(result => {
                     if (typeof callback === 'function') callback({ request: req, response: res, filename: filename, sessionId: sessionId });
@@ -159,6 +159,7 @@ class SessionsManager {
                 prepared[i] = this.actualSessions[key][i];
             }
         }
+
         return prepared;
     }
 

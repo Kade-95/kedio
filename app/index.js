@@ -28,6 +28,6 @@ server.methods.post = (req, res, form) => {
     res.end(JSON.stringify({ word: 'Hello' }));
 }
 
-server.recordSession({ period: 24 * 60 * 60 * 1000, remember: ['user'], bankServer: serverDetails });
+server.recordSession({ period: 24 * 60 * 60 * 1000, remember: ['user'], server: serverDetails });
 
 server.makeStatic('app/public');

@@ -43,7 +43,9 @@ class Server {
             get: (request, response, filename, callback) => {
                 if (this.static == true) {
                     if (this.allowSessions) {
-                        this.sessionsManager.store(request, response);
+                        if ((new Date().getTime() - this.sessionsManager.sessions[request.sessionId].time) > (this.sessionsManager.period / 10)) {
+                            this.sessionsManager.store(request, response);
+                        }
                     }
 
                     filename = filename.replace('./', this.staticPath);
@@ -66,10 +68,12 @@ class Server {
                 }
                 else {
                     if (this.allowSessions) {
-                        this.sessionsManager.store(request, response, filename, callback);
+                        if ((new Date().getTime() - this.sessionsManager.sessions[request.sessionId].time) > (this.sessionsManager.period / 10)) {
+                            this.sessionsManager.store(request, response, filename, callback);
+                        }
                     }
                     else {
-                        callback({ request, response, filename});
+                        callback({ request, response, filename });
                     }
                 }
             }
@@ -115,7 +119,7 @@ class Server {
         }
 
         this.permit(res, allowed);
-        
+
         this.sessionsManager.getCookies(req);
         if (req.method.toLowerCase() == 'get') {
             req.sessionId = this.sessionsManager.createNODESSID(res, true);
@@ -162,7 +166,7 @@ class Server {
             console.log('Url: ', this.url);
         });
 
-        if(typeof callback === 'function'){
+        if (typeof callback === 'function') {
             callback(server);
         }
     }
