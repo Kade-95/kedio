@@ -104,6 +104,19 @@ class Template extends JSElements {
             });
         }
 
+        Element.prototype.addChildEventListener = function (name = '', child = '', callBack = () => { }) {
+            let target, parent;
+            this.addEventListener(name, e => {
+                target = e.target;
+                parent = target.getParents(child);
+
+                if (parent != null) {
+                    e.bubbledTo = parent;
+                    callBack(e);
+                }
+            });
+        }
+
         //This handles all events that are not bubbled within an element and it's children
         Element.prototype.notBubbledEvent = function (event, callback = () => { }) {
             document.addEventListener(event, event => {
