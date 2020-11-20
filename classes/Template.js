@@ -136,8 +136,6 @@ class Template extends JSElements {
                         callBack(e);
                     }
                 }
-
-                console.log({ parent, identifier, target, flag });
             });
         }
 
