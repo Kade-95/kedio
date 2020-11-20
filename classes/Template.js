@@ -104,16 +104,40 @@ class Template extends JSElements {
             });
         }
 
-        Element.prototype.addChildEventListener = function (name = '', child = '', callBack = () => { }) {
-            let target, parent;
+        Element.prototype.addChildEventListener = function (name = '', child = { id: '', classes: [], nodeName: '' }, callBack = () => { }) {
+            let target, parent, identifier, flag;
+            if (child.constructor != Object) child = {};
             this.addEventListener(name, e => {
                 target = e.target;
-                parent = target.getParents(child);
+                identifier = '';
+                flag = true;
 
-                if (parent != null) {
-                    e.bubbledTo = parent;
+                if (child.id != undefined && child.id.constructor == String) {
+                    identifier += `#${child.id}`;
+                    if (flag) flag = event.target.id == child.id;
+                }
+                if (child.nodeName != undefined && child.nodeName.constructor == String) {
+                    identifier += child.nodeName;
+                    if (flag) flag = event.target.nodeName.toLowerCase() == child.nodeName;
+                }
+                if (child.classes != undefined && Array.isArray(child.classes) && child.classes.length) {
+                    identifier += `.${child.classes.join('.')}`;
+                    if (flag) flag = event.target.hasClasses(child.classes);
+                }
+
+                if ((flag != undefined && flag)) {
+                    e.bubbledTo = target;
                     callBack(e);
                 }
+                else {
+                    parent = target.getParents(identifier);
+                    if (parent != null) {
+                        e.bubbledTo = parent;
+                        callBack(e);
+                    }
+                }
+
+                console.log({ parent, identifier, target, flag });
             });
         }
 
